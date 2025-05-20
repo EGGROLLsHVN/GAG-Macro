@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import *
 from PIL import Image, ImageTk
+from toplevel import Newlv
 
 altAccount = 0
 
@@ -68,12 +69,19 @@ def add_placeholder(entry, placeholder):
     entry.bind('<FocusIn>', on_focus_in)
     entry.bind('<FocusOut>', on_focus_out)
 
+
+# When you pass in the number of alt accounts you want to use
+# TODO: Later we may find out whats the max number of alt accounts we could pass through and limit it
 def startBtnEvent(altValue, root, menu):
     altNum = altValue.get().strip()
     # altNum = int(altNum)
     if altNum.isdigit() and int(altNum)>0:   
         menu.reruns = int(altNum)
-        root.quit()
+        root.withdraw()
+        newWindow = Toplevel()
+        toplv = Newlv(newWindow, menu.reruns)
+        toplv.newlvBuilder()
+        
     else:
         root.focus_force()
         altValue.delete(0, 'end')
