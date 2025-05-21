@@ -4,6 +4,9 @@ import time
 import keyboard
 from datetime import datetime, timedelta
 import pytz # For timezone handling
+import autoit   # Direct input automations
+
+buyPadding = 0
 
 class Macro():
     def __init__(self, seed_data, runCount,):
@@ -17,6 +20,7 @@ class Macro():
         if not self.is_running:
             self.is_running = True
             self.thread = threading.Thread(target=self.mainLoop, daemon=True)
+            autoit.win_activate("Roblox")
             self.thread.start()
 
     def stop(self):
@@ -40,19 +44,218 @@ class Macro():
             print(f"Starting run {run + 1}/{self.runCount}")
             self.executeMacro()
 
-            if run < (self.runCount):
-                self.switchTabs()
-                
+            # if run < (self.runCount):
+            #     self.switchTabs()
+
     # TODO: Actually create the macros according to each seed setting
     def executeMacro(self):
+        autoit.mouse_click("left", 851,192, 2)
+
+
+        if self.seed_data.get("SeedShop") > 0:
+            self.regSeedMacro()
+
+        # if self.seed_data.get("GearShop") > 0:
+        #     self.gearShopMacro()
+
+        # if self.seed_data.get("BloodMoonShop") > 0:
+        #     self.eggShopMacro()
+        # if self.seed_data.get("EggShop") > 0:
+        #     self.bloodMoonShop()
+
+    def regSeedMacro(self): # waitTm = .5, clickWait = 1, moveSpeed = 0.5
+        print("RegularSeeds")
+        autoit.send("e")
         time.sleep(3)
-        print(pyautogui.position()) # Needs to be at x=851, y=192
 
+        # Click for the seed (1010, 935) 
+        # To close the buy (1770, 400)
         if self.seed_data.get("Carrot", False):
-            print("Collecting Carrot Seeds")
+            autoit.mouse_click("left", 919, 677, 1)
+            time.sleep(1.5)
+            autoit.mouse_click("left", 1002, 939, 20) 
+            time.sleep(1.5)
+            autoit.mouse_click("left", 919, 677, 1)
 
+        # Scrolls y + 40
         if self.seed_data.get("Strawberry", False):
-            print("Collecting Strawberry Seeds")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 565)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            self.shopBuy()
+            autoit.mouse_move(1800, 565)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+
+        # Scrolls y + 40
+        if self.seed_data.get("Blueberry", False):
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 605) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            self.shopBuy()
+            autoit.mouse_move(1800, 605) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+
+        # Scrolls y + 40
+        if self.seed_data.get("OrangeTulip", False):
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 645) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            self.shopBuy()
+            autoit.mouse_move(1800, 645) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+
+        # Scrolls y + 40
+        if self.seed_data.get("TomatoSeed", False):
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 685) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            self.shopBuy()
+            autoit.mouse_move(1800, 685) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+
+        # Scrolls y + 40
+        if self.seed_data.get("CornSeed", False):
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 725) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            self.shopBuy()
+            autoit.mouse_move(1800, 725) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+
+        # Scrolls y + 40
+        if self.seed_data.get("WatermelonSeed", False):
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 765) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            self.shopBuy()
+            autoit.mouse_move(1800, 765) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+        
+        # Scrolls y + 40
+        if self.seed_data.get("PumpkinSeed", False):
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 805) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            self.shopBuy()
+            autoit.mouse_move(1800, 805) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+
+        # Scrolls y + 40
+        if self.seed_data.get("AppleSeed", False):
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 845) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            self.shopBuy()
+            autoit.mouse_move(1800, 845) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            
+         # Scrolls y + 40
+        if self.seed_data.get("BambooSeed", False):
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 885) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            self.shopBuy()
+            autoit.mouse_move(1800, 885) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            
+            # Scrolls y + 40
+        if self.seed_data.get("CoconutSeed", False):
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 925) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            self.shopBuy()
+            autoit.mouse_move(1800, 925) # Update to new fruit
+            time.sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            time.sleep(1.2)
+            autoit.mouse_up("left")
+            
+
+    # def gearShopMacro(self):
+
+
+    # def eggShopMacro(self):
+
+
+    # def bloodMoonShop(self):
+
+    def shopBuy(self):
+        global buyPadding
+        autoit.mouse_click("left", 920, 675 + buyPadding, 1)
+        time.sleep(1.5)
+        autoit.mouse_click("left", 1000, 950 + buyPadding, 20) 
+        time.sleep(1.5)
+        autoit.mouse_click("left", 920, 675 + buyPadding, 1)
+        buyPadding += 5
+
+
 
     def switchTabs(self):
             keyboard.press_and_release("alt + shift + tab")

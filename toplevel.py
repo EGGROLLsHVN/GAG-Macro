@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageDraw, ImageTk
 from macro import Macro
+import keyboard
 
 class Newlv():
     def __init__(self, window, reruns):
@@ -10,9 +11,58 @@ class Newlv():
         self.reruns = reruns # TODO: Remember that reruns is the number of alts we want to collect
         self.seed_vars = {}
         self.macro = None
+        self.setup_global_hotkeys()
+
+        self.shopCategories = {
+            # Seed Shop
+            "Carrot": "SeedShop",
+            "Strawberry": "SeedShop",
+            "Blueberry": "SeedShop",
+            "OrangeTulip": "SeedShop",
+            "TomatoSeed": "SeedShop",
+            "CornSeed": "SeedShop",
+            "WatermelonSeed": "SeedShop",
+            "PumpkinSeed": "SeedShop",
+            "AppleSeed": "SeedShop",
+            "BambooSeed": "SeedShop",
+            "CoconutSeed": "SeedShop",
+            "CactusSeed": "SeedShop",
+            "DragonFruitSeed": "SeedShop",
+            "MangoSeed": "SeedShop",
+            "GrapeSeed": "SeedShop",
+            "MushroomSeed": "SeedShop",
+            "PepperSeedCacaoSeed": "SeedShop",
+            "BeanstalkSeed": "SeedShop",
+
+            # Bloodmoon Shop
+            "MysteriousCrate": "BloodMoonShop",
+            "NightEgg": "BloodMoonShop",
+            "NightSeedPack": "BloodMoonShop",
+            "BloodBananaSeed": "BloodMoonShop",
+            "MoonMelonSeed": "BloodMoonShop",
+            "StarCaller": "BloodMoonShop",
+            "BloodKiwi": "BloodMoonShop",
+            "BloodHedgehog": "BloodMoonShop",
+            "BloodOwl": "BloodMoonShop",
+
+            # Gear Shop
+            "WateringCan": "GearShop",
+            "Trowel": "GearShop",
+            "RecallWrench": "GearShop",
+            "BasicSprinkler": "GearShop",
+            "AdvancedSprinkler": "GearShop",
+            "GodlySprinkler": "GearShop",
+            "LightningRod": "GearShop",
+            "MasterSprinkler": "GearShop",
+            "FavoriteTool": "GearShop",
+
+            # Egg Shop
+            "All": "EggShop",
+        }
 
         self.seeds = {
             # Seed Shop:
+            "SeedShop": 0,
             "Carrot": False,
             "Strawberry": False,
             "Blueberry": False,
@@ -33,6 +83,7 @@ class Newlv():
             "BeanstalkSeed": False,
 
             # Bloodmoon Shop:
+            "BloodMoonShop": 0,
             "MysteriousCrate": False,
             "NightEgg": False,
             "NightSeedPack": False,
@@ -44,6 +95,7 @@ class Newlv():
             "BloodOwl": False,
 
             # Gear:
+            "GearShop": 0,
             "WateringCan": False,
             "Trowel": False,
             "RecallWrench": False,
@@ -55,11 +107,19 @@ class Newlv():
             "FavoriteTool": False,
 
             # Eggshop:
+            "EggShop": 0,
             "All": False
         }
 
         for seed in self.seeds:
             self.seed_vars[seed] = tk.BooleanVar(value=self.seeds[seed])
+
+
+    def setup_global_hotkeys(self):
+        # Bind Ctrl+1 to start_macro (works even if window is not focused)
+        keyboard.add_hotkey('ctrl+1', self.start_macro)
+        # Bind Ctrl+2 to stop_macro
+        keyboard.add_hotkey('ctrl+2', self.stop_macro)
 
     def newlvBuilder(self):
         toplv = self.toplv
@@ -218,15 +278,35 @@ class Newlv():
 
     def update_seed(self, seedName):
         self.seeds[seedName] = self.seed_vars[seedName].get()
+        category = self.shopCategories.get(seedName)
+
+        if self.seed_vars[seedName].get() is True:
+            self.seeds[category] +=1
+        else:
+            self.seeds[category] -=1
+
         print(f"{seedName} state: {self.seeds[seedName]}") 
+        print(f"{category} Buying: {self.seeds[category]}")
 
     def start_macro(self):
         if self.macro is None or not self.macro.is_running:
             self.macro = Macro(self.seeds, self.reruns)
             self.macro.start()
+            print("Starting Macro")
 
     def stop_macro(self):
         if self.macro is not None and self.macro.is_running:
             self.macro.stop()
+            print("Stopping Macro")
 
+    def start_macro(self, event=None):
+        if self.macro is None or not self.macro.is_running:
+            self.macro = Macro(self.seeds, self.reruns)
+            self.macro.start()
+            print("Starting Macro")
+
+    def stop_macro(self, event=None):
+        if self.macro is not None and self.macro.is_running:
+            self.macro.stop()
+            print("Stopping Macro")
 

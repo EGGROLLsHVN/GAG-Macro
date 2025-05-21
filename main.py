@@ -17,7 +17,6 @@ class Main ():
         self.root.mainloop() # Opens window and listens for events
 
 
-
 if __name__ == "__main__":
     app = Main()  # This only runs when gui.py is executed directly
 
