@@ -9,6 +9,7 @@ class Newlv():
         self.toplv = window
         self.reruns = reruns # TODO: Remember that reruns is the number of alts we want to collect
         self.seed_vars = {}
+        self.macro = None
 
         self.seeds = {
             # Seed Shop:
@@ -109,10 +110,10 @@ class Newlv():
         startTab = Frame(shopBook, bg="#292928")
 
         # Add tabs to notebook
-        shopBook.add(regSeeds, text="Regular Seeds")
-        shopBook.add(gearShop, text="Gear Shop")
-        shopBook.add(eggShop, text="Egg Shop")
-        shopBook.add(bloodMoonShop, text="Blood Moon Shop")
+        shopBook.add(regSeeds, text="Regular")
+        shopBook.add(gearShop, text="Gear")
+        shopBook.add(eggShop, text="Eggs")
+        shopBook.add(bloodMoonShop, text="Event")
         shopBook.add(startTab, text="Start Macro")
         
     
@@ -194,7 +195,7 @@ class Newlv():
             padx=10,  # Horizontal padding
             pady=5,    # Vertical padding
             takefocus=0,
-            command=lambda: self.runMacro(self.seeds, self.reruns, True)
+            command=self.start_macro # lambda: self.runMacro(self.seeds, self.reruns, True)
             ).pack(pady=(20,0), expand=True)
         
         Button(startTab, 
@@ -212,24 +213,20 @@ class Newlv():
             padx=10,  # Horizontal padding
             pady=5,    # Vertical padding
             takefocus=0,
-            command=lambda: self.runMacro(self.seeds, self.reruns, False)
+            command=self.stop_macro    # lambda: self.runMacro(self.seeds, self.reruns, False)
             ).pack(pady=(0,20), expand=True)
 
     def update_seed(self, seedName):
         self.seeds[seedName] = self.seed_vars[seedName].get()
         print(f"{seedName} state: {self.seeds[seedName]}") 
 
-    def runMacro(self, seed_data, runCount, bool):
-        macro = Macro(seed_data, runCount, bool)
-        while macro.bool is True:
-            run = runCount
-            for i in range(run):
-                macro.run()
+    def start_macro(self):
+        if self.macro is None or not self.macro.is_running:
+            self.macro = Macro(self.seeds, self.reruns)
+            self.macro.start()
 
-
-
-
-
-
+    def stop_macro(self):
+        if self.macro is not None and self.macro.is_running:
+            self.macro.stop()
 
 
