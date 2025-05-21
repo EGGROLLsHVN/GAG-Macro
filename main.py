@@ -15,29 +15,9 @@ class Main ():
         self.menuBuild = Menu(self.root)  # Pass the window to Menu
         self.menuBuild.guiBuilder()
         self.root.mainloop() # Opens window and listens for events
-        
-        # reruns = self.menuBuild.reruns
-        
-        # self.toplv = Toplevel()
-        # toplv = self.toplv
-        # self.protocol("WM_DELETE_WINDOW", lambda: settingWindow(toplv))
-
-
-        # self.root.mainloop() # Opens window and listens for events
-
-
-
-
 
 
 
 if __name__ == "__main__":
     app = Main()  # This only runs when gui.py is executed directly
-
-# def settingWindow():
-
-
-# def runMacro():
-#     # if the time is a multiple of 5 then run the loop again for the number of reruns executed 
-#     # if the time is not a multiple of 5 and less than the next multiple of 5 then keep executing the loop for the number of reruns left
 
