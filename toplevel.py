@@ -8,10 +8,15 @@ import keyboard
 class Newlv():
     def __init__(self, window, reruns):
         self.toplv = window
-        self.reruns = reruns # TODO: Remember that reruns is the number of alts we want to collect
+        self.reruns = reruns
         self.seed_vars = {}
         self.macro = None
         self.setup_global_hotkeys()
+        self.seedMaxC = 2
+        self.gearMaxC = 1
+        self.eggMaxC=1
+        self.bloodMC=1
+       
 
         self.shopCategories = {
             # Seed Shop
@@ -21,6 +26,7 @@ class Newlv():
             "OrangeTulip": "SeedShop",
             "TomatoSeed": "SeedShop",
             "CornSeed": "SeedShop",
+            "DaffodilSeed": "SeedShop",
             "WatermelonSeed": "SeedShop",
             "PumpkinSeed": "SeedShop",
             "AppleSeed": "SeedShop",
@@ -31,7 +37,8 @@ class Newlv():
             "MangoSeed": "SeedShop",
             "GrapeSeed": "SeedShop",
             "MushroomSeed": "SeedShop",
-            "PepperSeedCacaoSeed": "SeedShop",
+            "PepperSeed": "SeedShop",
+            "CacaoSeed": "SeedShop",
             "BeanstalkSeed": "SeedShop",
 
             # Bloodmoon Shop
@@ -69,6 +76,7 @@ class Newlv():
             "OrangeTulip": False,
             "TomatoSeed": False,
             "CornSeed": False,
+            "DaffodilSeed": False,
             "WatermelonSeed": False,
             "PumpkinSeed": False,
             "AppleSeed": False,
@@ -79,7 +87,8 @@ class Newlv():
             "MangoSeed": False,
             "GrapeSeed": False,
             "MushroomSeed": False,
-            "PepperSeedCacaoSeed": False,
+            "PepperSeed": False,
+            "CacaoSeed": False,
             "BeanstalkSeed": False,
 
             # Bloodmoon Shop:
@@ -115,6 +124,7 @@ class Newlv():
             self.seed_vars[seed] = tk.BooleanVar(value=self.seeds[seed])
 
 
+    
     def setup_global_hotkeys(self):
         # Bind Ctrl+1 to start_macro (works even if window is not focused)
         keyboard.add_hotkey('ctrl+1', self.start_macro)
@@ -176,69 +186,174 @@ class Newlv():
         shopBook.add(bloodMoonShop, text="Event")
         shopBook.add(startTab, text="Start Macro")
         
-    
+        # Create a container frame for the different tabs
+        seedGrid = Frame(regSeeds, bg="#292928")
+        seedGrid.pack(fill="both", expand=True, padx=10, pady=10)
 
+        gearGrid = Frame(gearShop, bg="#292928")
+        gearGrid.pack(fill="both", expand=True, padx=10, pady=10)
+
+        bloodMoonGrid = Frame(bloodMoonShop, bg="#292928")
+        bloodMoonGrid.pack(fill="both", expand=True, padx=10, pady=10)
+
+        eggGrid = Frame(eggShop, bg="#292928")
+        eggGrid.pack(fill="both", expand=True, padx=10, pady=10)
 
         # Reg Seeds
-        for seed in ["Carrot", "Strawberry", "Blueberry", "OrangeTulip", "TomatoSeed", "CornSeed", "WatermelonSeed", "PumpkinSeed", "AppleSeed", "BambooSeed", "CoconutSeed", "CactusSeed", "DragonFruitSeed", "MangoSeed", "GrapeSeed", "MushroomSeed", "PepperSeedCacaoSeed", "BeanstalkSeed", 
-]:
-            Checkbutton(regSeeds, 
-                        text=seed, 
-                        variable=self.seed_vars[seed], 
-                        onvalue=True, 
-                        offvalue=False, 
-                        command=lambda s=seed: self.update_seed(s),
-                        bg="#292928",
-                        fg="white",
-                        selectcolor="#1e1e1e",
-                        activebackground="#292928",
-                        activeforeground="white"
-                        ).pack()
-            
-        # Gear Shop    
-        for gear in ["WateringCan", "Trowel", "RecallWrench", "BasicSprinkler", "AdvancedSprinkler", "GodlySprinkler", "LightningRod", "MasterSprinkler", "FavoriteTool"]:
 
-            Checkbutton(gearShop, 
-                        text=gear, 
-                        variable=self.seed_vars[gear], 
-                        onvalue=True, 
-                        offvalue=False, 
-                        command=lambda g=gear: self.update_seed(g),
-                        bg="#292928",
-                        fg="white",
-                        selectcolor="#1e1e1e",
-                        activebackground="#292928",
-                        activeforeground="white"
-                        ).pack()
+        for col in range(self.seedMaxC):
+            seedGrid.grid_columnconfigure(col, weight=1)
+
+        regularSeeds = ["Carrot", "Strawberry", "Blueberry", "OrangeTulip", "TomatoSeed", "CornSeed", 
+                        "DaffodilSeed", "WatermelonSeed", "PumpkinSeed", "AppleSeed", "BambooSeed", 
+                        "CoconutSeed", "CactusSeed", "DragonFruitSeed", "MangoSeed", "GrapeSeed", "MushroomSeed", 
+                        "PepperSeed", "CacaoSeed", "BeanstalkSeed"]
+                        
+        # Add checkbuttons in grid layout
+        for i, seed in enumerate(regularSeeds):
+            row = i // self.seedMaxC
+            column = i % self.seedMaxC
+
+            Checkbutton(
+                seedGrid,
+                text=seed,
+                variable=self.seed_vars[seed],
+                onvalue=True,
+                offvalue=False,
+                command=lambda s=seed: self.update_seed(s),
+                bg="#292928",
+                fg="white",
+                selectcolor="#1e1e1e",
+                activebackground="#292928",
+                activeforeground="white",
+                anchor="w",
+                width=18  # Fixed width for consistent alignment
+                ).grid(
+                row=row,
+                column=column,
+                sticky="nsew",  # Expand to fill cell
+                padx=5,
+                pady=2
+            )
+
+        # Expanding Rows
+        total_rows = (len(regularSeeds) // self.seedMaxC) + 1
+        for row in range(total_rows):
+            seedGrid.grid_rowconfigure(row, weight=1)
+
+        # Gear Shop
+        for col in range(self.gearMaxC):
+            gearGrid.grid_columnconfigure(col, weight=1)
+
+        gearItems = ["WateringCan", "Trowel", "RecallWrench", "BasicSprinkler", "AdvancedSprinkler", 
+                     "GodlySprinkler", "LightningRod", "MasterSprinkler", "FavoriteTool"]
+
+        for i, gear in enumerate(gearItems):
+            row = i // self.gearMaxC
+            column = i % self.gearMaxC
+
+            Checkbutton(
+                gearGrid,
+                text=gear,
+                variable=self.seed_vars[gear],
+                onvalue=True,
+                offvalue=False,
+                command=lambda g=gear: self.update_seed(g),
+                bg="#292928",
+                fg="white",
+                selectcolor="#1e1e1e",
+                activebackground="#292928",
+                activeforeground="white",
+                anchor="w",
+                width=18  # Fixed width for consistent alignment
+                ).grid(
+                row=row,
+                column=column,
+                sticky="nsew",  # Expand to fill cell
+                padx=5,
+                pady=2
+            )
+
+        # Expanding Rows
+        total_rows = (len(gearItems) // self.gearMaxC) + 1
+        for row in range(total_rows):
+            gearGrid.grid_rowconfigure(row, weight=1)
+
         # Egg Shop
-        for egg in ["All"]:
-            Checkbutton(eggShop, 
-                        text=egg, 
-                        variable=self.seed_vars[egg], 
-                        onvalue=True, 
-                        offvalue=False, 
-                        command=lambda e=egg: self.update_seed(e),
-                        bg="#292928",
-                        fg="white",
-                        selectcolor="#1e1e1e",
-                        activebackground="#292928",
-                        activeforeground="white"
-                        ).pack()
-            
+        for col in range(self.eggMaxC):
+            eggGrid.grid_columnconfigure(col, weight=1)
+
+        eggShopList = ["All"]
+
+        for i, egg in enumerate(eggShopList):
+            row = i // self.eggMaxC
+            column = i % self.eggMaxC
+
+            Checkbutton(
+                eggGrid,
+                text=egg,
+                variable=self.seed_vars[egg],
+                onvalue=True,
+                offvalue=False,
+                command=lambda e=egg: self.update_seed(e),
+                bg="#292928",
+                fg="white",
+                selectcolor="#1e1e1e",
+                activebackground="#292928",
+                activeforeground="white",
+                anchor="w",
+                width=18  # Fixed width for consistent alignment
+                ).grid(
+                row=row,
+                column=column,
+                sticky="nsew",  # Expand to fill cell
+                padx=5,
+                pady=2
+            )
+
+        # Expanding Rows
+        total_rows = (len(eggShopList) // self.eggMaxC) + 1
+        for row in range(total_rows):
+            eggGrid.grid_rowconfigure(row, weight=1)
+        
         # Blood Moon Shop
-        for bloodSeed in ["MysteriousCrate", "NightEgg", "NightSeedPack", "BloodBananaSeed", "MoonMelonSeed", "StarCaller", "BloodKiwi", "BloodHedgehog", "BloodOwl"]:
-            Checkbutton(bloodMoonShop, 
-                        text=bloodSeed, 
-                        variable=self.seed_vars[bloodSeed], 
-                        onvalue=True, 
-                        offvalue=False, 
-                        command=lambda b=bloodSeed: self.update_seed(b),
-                        bg="#292928",
-                        fg="white",
-                        selectcolor="#1e1e1e",
-                        activebackground="#292928",
-                        activeforeground="white"
-                        ).pack()
+        for col in range(self.bloodMC):
+            bloodMoonGrid.grid_columnconfigure(col, weight=1)
+
+        
+        bloodItems = ["MysteriousCrate", "NightEgg", "NightSeedPack", "BloodBananaSeed", "MoonMelonSeed", 
+                      "StarCaller", "BloodKiwi", "BloodHedgehog", "BloodOwl"]
+
+        for i, bItems in enumerate(bloodItems):
+            row = i // self.eggMaxC
+            column = i % self.eggMaxC
+
+            Checkbutton(
+                bloodMoonGrid,
+                text=bItems,
+                variable=self.seed_vars[bItems],
+                onvalue=True,
+                offvalue=False,
+                command=lambda b=bItems: self.update_seed(b),
+                bg="#292928",
+                fg="white",
+                selectcolor="#1e1e1e",
+                activebackground="#292928",
+                activeforeground="white",
+                anchor="w",
+                width=18  # Fixed width for consistent alignment
+                ).grid(
+                row=row,
+                column=column,
+                sticky="nsew",  # Expand to fill cell
+                padx=5,
+                pady=2
+            )
+
+        # Expanding Rows
+        total_rows = (len(bloodItems) // self.bloodMC) + 1
+        for row in range(total_rows):
+            bloodMoonGrid.grid_rowconfigure(row, weight=1)
 
         Button(startTab, 
             text="Start: Ctrl + 1",
@@ -288,6 +403,12 @@ class Newlv():
         print(f"{seedName} state: {self.seeds[seedName]}") 
         print(f"{category} Buying: {self.seeds[category]}")
 
+    def start_macro(self, event=None):
+        self.start_macro()
+
+    def stop_macro(self, event=None):
+        self.stop_macro
+        
     def start_macro(self):
         if self.macro is None or not self.macro.is_running:
             self.macro = Macro(self.seeds, self.reruns)
@@ -299,14 +420,5 @@ class Newlv():
             self.macro.stop()
             print("Stopping Macro")
 
-    def start_macro(self, event=None):
-        if self.macro is None or not self.macro.is_running:
-            self.macro = Macro(self.seeds, self.reruns)
-            self.macro.start()
-            print("Starting Macro")
-
-    def stop_macro(self, event=None):
-        if self.macro is not None and self.macro.is_running:
-            self.macro.stop()
-            print("Stopping Macro")
+    
 

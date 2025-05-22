@@ -6,15 +6,16 @@ from datetime import datetime, timedelta
 import pytz # For timezone handling
 import autoit   # Direct input automations
 
-buyPadding = 0
-
 class Macro():
     def __init__(self, seed_data, runCount,):
+       
         self.seed_data = seed_data  # Store the seeds dictionary
         self.runCount = runCount
         self.is_running = False
         self.thread = None
         self.est = pytz.timezone("US/Eastern")
+
+
 
     def start(self):
         if not self.is_running:
@@ -27,10 +28,17 @@ class Macro():
         self.is_running = False
         if self.thread and self.thread.is_alive():
             self.thread.join(timeout=1)
+
+    def safe_sleep(self, delay):
+        """Sleep that can be interrupted by stop()"""
+        for _ in range(int(delay * 10)):
+            if not self.is_running:
+                return
+            time.sleep(0.1)    
     
     # Handles controling loop: starting, number of iterations, controlling the time
     def mainLoop(self):
-        while self.is_running is not False:
+        while self.is_running:
             self.runMacroCycle()
             self.waitUntilNextInterval()
 
@@ -49,10 +57,13 @@ class Macro():
 
     # TODO: Actually create the macros according to each seed setting
     def executeMacro(self):
+        if not self.is_running:
+            return
+        
         autoit.mouse_click("left", 851,192, 2)
 
 
-        if self.seed_data.get("SeedShop") > 0:
+        if self.seed_data.get("SeedShop") > 0 and self.is_running:
             self.regSeedMacro()
 
         # if self.seed_data.get("GearShop") > 0:
@@ -64,180 +75,419 @@ class Macro():
         #     self.bloodMoonShop()
 
     def regSeedMacro(self): # waitTm = .5, clickWait = 1, moveSpeed = 0.5
+        if not self.is_running:
+            return
+        
         print("RegularSeeds")
         autoit.send("e")
-        time.sleep(3)
+        self.safe_sleep(3)
 
         # Click for the seed (1010, 935) 
         # To close the buy (1770, 400)
-        if self.seed_data.get("Carrot", False):
+        if self.seed_data.get("Carrot", False) and self.is_running:
             autoit.mouse_click("left", 919, 677, 1)
-            time.sleep(1.5)
+            self.safe_sleep(1.5)
             autoit.mouse_click("left", 1002, 939, 20) 
-            time.sleep(1.5)
+            self.safe_sleep(1.5)
             autoit.mouse_click("left", 919, 677, 1)
 
         # Scrolls y + 40
-        if self.seed_data.get("Strawberry", False):
+        if self.seed_data.get("Strawberry", False) and self.is_running:
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 565)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
             self.shopBuy()
             autoit.mouse_move(1800, 565)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
 
         # Scrolls y + 40
-        if self.seed_data.get("Blueberry", False):
+        if self.seed_data.get("Blueberry", False) and self.is_running:
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 605) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
             self.shopBuy()
             autoit.mouse_move(1800, 605) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
 
         # Scrolls y + 40
-        if self.seed_data.get("OrangeTulip", False):
+        if self.seed_data.get("OrangeTulip", False) and self.is_running:
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 645) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
-            self.shopBuy()
+            #
+            autoit.mouse_click("left", 920, 685, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 980, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 930, 685, 1)
+            # 
             autoit.mouse_move(1800, 645) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
 
         # Scrolls y + 40
-        if self.seed_data.get("TomatoSeed", False):
+        if self.seed_data.get("TomatoSeed", False) and self.is_running:
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 685) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
-            self.shopBuy()
+            #
+            autoit.mouse_click("left", 920, 685, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1000, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 685, 1)
+            # 
             autoit.mouse_move(1800, 685) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
 
         # Scrolls y + 40
-        if self.seed_data.get("CornSeed", False):
+        if self.seed_data.get("CornSeed", False) and self.is_running:
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 725) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
-            self.shopBuy()
+            #
+            autoit.mouse_click("left", 920, 685, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1020, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 685, 1)
+            # 
             autoit.mouse_move(1800, 725) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
-            autoit.mouse_up("left")
-
-        # Scrolls y + 40
-        if self.seed_data.get("WatermelonSeed", False):
-            autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 765) # Update to new fruit
-            time.sleep(1.2)
-            autoit.mouse_up("left")
-            self.shopBuy()
-            autoit.mouse_move(1800, 765) # Update to new fruit
-            time.sleep(1.2)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
         
-        # Scrolls y + 40
-        if self.seed_data.get("PumpkinSeed", False):
+        if self.seed_data.get("DaffodilSeed", False) and self.is_running:
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 765) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 685, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1020, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 685, 1)
+            # 
+            autoit.mouse_move(1800, 765) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            
+        if self.seed_data.get("WatermelonSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 805) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
-            self.shopBuy()
+            #
+            autoit.mouse_click("left", 920, 685, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1020, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 685, 1)
+            # 
             autoit.mouse_move(1800, 805) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
 
-        # Scrolls y + 40
-        if self.seed_data.get("AppleSeed", False):
+        # Pumpkin
+        if self.seed_data.get("PumpkinSeed", False) and self.is_running:
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 845) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
-            self.shopBuy()
+            #
+            autoit.mouse_click("left", 920, 685, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1040, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 685, 1)
+            # 
             autoit.mouse_move(1800, 845) # Update to new fruit
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
+            self.safe_sleep(1.2)
             autoit.mouse_up("left")
-            
-         # Scrolls y + 40
-        if self.seed_data.get("BambooSeed", False):
-            autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 885) # Update to new fruit
-            time.sleep(1.2)
-            autoit.mouse_up("left")
-            self.shopBuy()
-            autoit.mouse_move(1800, 885) # Update to new fruit
-            time.sleep(1.2)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
-            autoit.mouse_up("left")
-            
-            # Scrolls y + 40
-        if self.seed_data.get("CoconutSeed", False):
-            autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 925) # Update to new fruit
-            time.sleep(1.2)
-            autoit.mouse_up("left")
-            self.shopBuy()
-            autoit.mouse_move(1800, 925) # Update to new fruit
-            time.sleep(1.2)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            time.sleep(1.2)
-            autoit.mouse_up("left")
-            
 
+        if self.seed_data.get("AppleSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 885) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 685, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1040, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 685, 1)
+            # 
+            autoit.mouse_move(1800, 885) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+
+        if self.seed_data.get("BambooSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 925) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 685, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1080, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 685, 1)
+            # 
+            autoit.mouse_move(1800, 925) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+
+        if self.seed_data.get("CoconutSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 965) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 720, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1120, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 720, 1)
+            # 
+            autoit.mouse_move(1800, 965) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+
+        # Cactus Seeds
+        if self.seed_data.get("CactusSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 1005) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 720, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1120, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 720, 1)
+            # 
+            autoit.mouse_move(1800, 1005) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+        
+        if self.seed_data.get("DragonFruitSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 1045) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 720, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1120, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 720, 1)
+            # 
+            autoit.mouse_move(1800, 1045) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+
+        if self.seed_data.get("MangoSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 1085) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 720, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1160, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 800, 1)
+            # 
+            autoit.mouse_move(1800, 1085) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+
+        # Grape Seeds
+        if self.seed_data.get("GrapeSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 1125) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 720, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1160, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 800, 1)
+            # 
+            autoit.mouse_move(1800, 1125) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+
+        if self.seed_data.get("MushroomSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 1165) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 720, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1160, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 800, 1)
+            # 
+            autoit.mouse_move(1800, 1165) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+
+        #Pepper Seeds
+        if self.seed_data.get("PepperSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 1205) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 720, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1200, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 860, 1)
+            # 
+            autoit.mouse_move(1800, 1205) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left") 
+
+        if self.seed_data.get("CacaoSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 1245) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 720, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1240, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 900, 1)
+            # 
+            autoit.mouse_move(1800, 1245) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left") 
+
+        # Beanstalk Seed TODO: Might need to edit (update to new fruit line) when new fruits come out and the whole buy section # #
+        if self.seed_data.get("BeanstalkSeed", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 1245) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 1100, 1)
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 1000, 1240, 20) 
+            self.safe_sleep(1.5)
+            autoit.mouse_click("left", 920, 1000, 1)
+            # 
+            autoit.mouse_move(1800, 1245) # Update to new fruit
+            self.safe_sleep(1.2)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            self.safe_sleep(1.2)
+            autoit.mouse_up("left") 
+    
     # def gearShopMacro(self):
 
 
@@ -247,19 +497,18 @@ class Macro():
     # def bloodMoonShop(self):
 
     def shopBuy(self):
-        global buyPadding
-        autoit.mouse_click("left", 920, 675 + buyPadding, 1)
-        time.sleep(1.5)
-        autoit.mouse_click("left", 1000, 950 + buyPadding, 20) 
-        time.sleep(1.5)
-        autoit.mouse_click("left", 920, 675 + buyPadding, 1)
-        buyPadding += 5
-
-
+        if not self.is_running:
+            return
+        
+        autoit.mouse_click("left", 920, 675, 1)
+        self.safe_sleep(1.5)
+        autoit.mouse_click("left", 1000, 950, 20) 
+        self.safe_sleep(1.5)
+        autoit.mouse_click("left", 920, 675, 1)
 
     def switchTabs(self):
             keyboard.press_and_release("alt + shift + tab")
-            time.sleep(0.5)
+            self.safe_sleep(0.5)
             print("Switched to next tab")
 
     # Calculates time based on local time, or time zone in intervals of 5
