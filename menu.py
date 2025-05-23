@@ -23,6 +23,8 @@ class Menu():
         root.resizable(False, False)
         
         # Load image with Pillow for better handling
+        # imagePath = self.resource_path("GAG Thumbnail.png")
+        # img = Image.open(imagePath)
         img = Image.open("GAG Thumbnail.png")
         self.gagThumbnail = ImageTk.PhotoImage(img)
         root.iconphoto(True, self.gagThumbnail)
@@ -31,7 +33,7 @@ class Menu():
         # Entry 
         altNumEntry = Entry()
         altNumEntry.config(font=("Comic Sans MS", 10), bd=0, highlightthickness=0)
-        add_placeholder(altNumEntry, "Number of alts")
+        addPlaceholder(altNumEntry, "Number of alts")
         altNumEntry.config(width=20)
         altNumEntry.pack(pady=(20,10), ipady=20)
 
@@ -51,8 +53,9 @@ class Menu():
         self.tk_image = ImageTk.PhotoImage(picture)
         label = Label(self.window, image=self.tk_image, highlightthickness=0, bd=0)
         label.pack(pady=(60, 0))
-
-def add_placeholder(entry, placeholder):
+        
+# Creates a place holder text for our entry
+def addPlaceholder(entry, placeholder):
     entry.insert(0, placeholder)
     entry.config(fg='grey')
     
@@ -85,7 +88,7 @@ def startBtnEvent(altValue, root, menu):
     else:
         root.focus_force()
         altValue.delete(0, 'end')
-        add_placeholder(altValue, "Enter a valid number")
+        addPlaceholder(altValue, "Enter a valid number")
 
     
 

@@ -4,6 +4,7 @@ from tkinter import ttk
 from PIL import Image, ImageDraw, ImageTk
 from macro import Macro
 import keyboard
+import autoit
 
 class Newlv():
     def __init__(self, window, reruns):
@@ -123,13 +124,11 @@ class Newlv():
         for seed in self.seeds:
             self.seed_vars[seed] = tk.BooleanVar(value=self.seeds[seed])
 
-
-    
     def setup_global_hotkeys(self):
-        # Bind Ctrl+1 to start_macro (works even if window is not focused)
-        keyboard.add_hotkey('ctrl+1', self.start_macro)
-        # Bind Ctrl+2 to stop_macro
-        keyboard.add_hotkey('ctrl+2', self.stop_macro)
+        # Bind Ctrl+1 to startMacro (works even if window is not focused)
+        keyboard.add_hotkey('ctrl+1', self.startMacroKeybind, suppress=True, timeout=0.01)
+        # Bind Ctrl+2 to stopMacro
+        keyboard.add_hotkey('ctrl+2', self.stopMacroKeybind, suppress=True, timeout=0.001)
 
     def newlvBuilder(self):
         toplv = self.toplv
@@ -220,7 +219,7 @@ class Newlv():
                 variable=self.seed_vars[seed],
                 onvalue=True,
                 offvalue=False,
-                command=lambda s=seed: self.update_seed(s),
+                command=lambda s=seed: self.updateSeed(s),
                 bg="#292928",
                 fg="white",
                 selectcolor="#1e1e1e",
@@ -258,7 +257,7 @@ class Newlv():
                 variable=self.seed_vars[gear],
                 onvalue=True,
                 offvalue=False,
-                command=lambda g=gear: self.update_seed(g),
+                command=lambda g=gear: self.updateSeed(g),
                 bg="#292928",
                 fg="white",
                 selectcolor="#1e1e1e",
@@ -295,7 +294,7 @@ class Newlv():
                 variable=self.seed_vars[egg],
                 onvalue=True,
                 offvalue=False,
-                command=lambda e=egg: self.update_seed(e),
+                command=lambda e=egg: self.updateSeed(e),
                 bg="#292928",
                 fg="white",
                 selectcolor="#1e1e1e",
@@ -334,7 +333,7 @@ class Newlv():
                 variable=self.seed_vars[bItems],
                 onvalue=True,
                 offvalue=False,
-                command=lambda b=bItems: self.update_seed(b),
+                command=lambda b=bItems: self.updateSeed(b),
                 bg="#292928",
                 fg="white",
                 selectcolor="#1e1e1e",
@@ -370,7 +369,7 @@ class Newlv():
             padx=10,  # Horizontal padding
             pady=5,    # Vertical padding
             takefocus=0,
-            command=self.start_macro # lambda: self.runMacro(self.seeds, self.reruns, True)
+            command=self.startMacro # lambda: self.runMacro(self.seeds, self.reruns, True)
             ).pack(pady=(20,0), expand=True)
         
         Button(startTab, 
@@ -388,10 +387,10 @@ class Newlv():
             padx=10,  # Horizontal padding
             pady=5,    # Vertical padding
             takefocus=0,
-            command=self.stop_macro    # lambda: self.runMacro(self.seeds, self.reruns, False)
+            command=self.stopMacro    # lambda: self.runMacro(self.seeds, self.reruns, False)
             ).pack(pady=(0,20), expand=True)
 
-    def update_seed(self, seedName):
+    def updateSeed(self, seedName):
         self.seeds[seedName] = self.seed_vars[seedName].get()
         category = self.shopCategories.get(seedName)
 
@@ -403,22 +402,27 @@ class Newlv():
         print(f"{seedName} state: {self.seeds[seedName]}") 
         print(f"{category} Buying: {self.seeds[category]}")
 
-    def start_macro(self, event=None):
-        self.start_macro()
+    def startMacroKeybind(self, event=None):  
+        self.startMacro()
 
-    def stop_macro(self, event=None):
-        self.stop_macro
-        
-    def start_macro(self):
+    def startMacro(self):  
         if self.macro is None or not self.macro.is_running:
             self.macro = Macro(self.seeds, self.reruns)
             self.macro.start()
-            print("Starting Macro")
+            print("Macro started")
 
-    def stop_macro(self):
-        if self.macro is not None and self.macro.is_running:
+
+    def stopMacroKeybind(self, event=None):  
+        self.stopMacro()
+
+    def stopMacro(self):  
+        if  self.macro is not None and self.macro.is_running:
             self.macro.stop()
-            print("Stopping Macro")
+            self.macro = None
+            # self.macro.thread.join(timeout=0.5)
+            print("Macro stopped")
+        else:
+            print("No active macro to stop")
 
     
 
