@@ -31,9 +31,11 @@ An automated program for the roblox game "Grow A Garden" that easily buys items 
 - ❌ Optimize and increase the number of alts the macro can support
 
 ## ⚙️ Installation  
-- Python 3.10+  (Probably installed in file already)
-- 2560 x 1600 display resolution
-- Hide taskbar must be off
+- Python 3.10+  (Probably installed in file already)s
 
 ### Setup  
+- 2560 x 1600 display resolution
+- Hide taskbar must be off
+- Recall wrench in hotbar slot 2
+- For seed and gear shop make sure scroller placed at the very beginning 
 - Run GaG_Macro Executable
