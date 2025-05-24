@@ -5,6 +5,7 @@ from PIL import Image, ImageDraw, ImageTk
 from macro import Macro
 import keyboard
 import autoit
+import os, sys
 
 class Newlv():
     def __init__(self, window, reruns):
@@ -63,6 +64,7 @@ class Newlv():
             "LightningRod": "GearShop",
             "MasterSprinkler": "GearShop",
             "FavoriteTool": "GearShop",
+            "HarvestTool": "GearShop",
 
             # Egg Shop
             "All": "EggShop",
@@ -115,6 +117,7 @@ class Newlv():
             "LightningRod": False,
             "MasterSprinkler": False,
             "FavoriteTool": False,
+            "HarvestTool": False,
 
             # Eggshop:
             "EggShop": 0,
@@ -123,6 +126,14 @@ class Newlv():
 
         for seed in self.seeds:
             self.seed_vars[seed] = tk.BooleanVar(value=self.seeds[seed])
+
+    def onClose(self):
+        if self.macro is not None and self.macro.is_running:
+            self.macro.stop()
+    
+        # Destroy the window
+        self.toplv.destroy()
+        os._exit(0)
 
     def setup_global_hotkeys(self):
         # Bind Ctrl+1 to startMacro (works even if window is not focused)
@@ -245,7 +256,7 @@ class Newlv():
             gearGrid.grid_columnconfigure(col, weight=1)
 
         gearItems = ["WateringCan", "Trowel", "RecallWrench", "BasicSprinkler", "AdvancedSprinkler", 
-                     "GodlySprinkler", "LightningRod", "MasterSprinkler", "FavoriteTool"]
+                     "GodlySprinkler", "LightningRod", "MasterSprinkler", "FavoriteTool", "HarvestTool"]
 
         for i, gear in enumerate(gearItems):
             row = i // self.gearMaxC
@@ -424,5 +435,7 @@ class Newlv():
         else:
             print("No active macro to stop")
 
-    
+
+
+
 

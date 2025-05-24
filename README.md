@@ -38,4 +38,5 @@ An automated program for the roblox game "Grow A Garden" that easily buys items 
 - Hide taskbar must be off
 - Recall wrench in hotbar slot 2
 - For seed and gear shop make sure scroller placed at the very beginning 
+- Lineup according to the lineup.png image so it walks straight to middle egg
 - Run GaG_Macro Executable

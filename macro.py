@@ -9,7 +9,7 @@ import time
 import pydirectinput
 
 class Macro():
-    def __init__(self, seed_data, runCount,):
+    def __init__(self, seed_data, runCount):
        
         self.seed_data = seed_data  # Store the seeds dictionary
         self.runCount = runCount
@@ -66,12 +66,13 @@ class Macro():
                 break
 
             print(f"Starting run {run + 1}/{self.runCount}")
+            print(f"{self.runCount}")
             self.executeMacro()
 
-            # if run < (self.runCount):
-            #      self.switchTabs()
-            # else:
-            #     return
+            if run < (self.runCount - 1):
+                 self.switchTabs()
+            else:
+                return
 
     # Run macros according to each seed setting
     def executeMacro(self):
@@ -94,7 +95,6 @@ class Macro():
             autoit.mouse_click("left", 1770 , 400)
             self.safeSleep(1)
 
-        # TODO: Do the lineup at the beginning then you can tp to sell and hold D until it hits the eggs 
         if self.seed_data.get("EggShop") > 0 and self.is_running:
             self.eggShopMacro()
             autoit.mouse_click("left", 1300 , 200, 2)
@@ -103,7 +103,7 @@ class Macro():
 
         if self.seed_data.get("GearShop") > 0 and self.is_running:
             self.gearShopMacro()
-            autoit.mouse_click("left", 1770 , 400)
+            # autoit.mouse_click("left", 1770 , 400)
             self.safeSleep(1)
 
         # if self.seed_data.get("BloodMoonShop") > 0 and self.is_running:
@@ -548,10 +548,14 @@ class Macro():
         if self.seed_data.get("BasicSprinkler", False) and self.is_running:
             autoit.mouse_move(1800, 525)
             autoit.mouse_down("left")
-            autoit.mouse_move(1800, 795)
+            autoit.mouse_move(1800, 765)
             autoit.mouse_up("left")
-            self.shopBuy()
-            autoit.mouse_move(1800, 885)
+            #
+            autoit.mouse_click("left", 920, 675, 1)
+            autoit.mouse_click("left", 1000, 1000, 20) 
+            autoit.mouse_click("left", 920, 675, 1)
+            #
+            autoit.mouse_move(1800, 765)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
             autoit.mouse_up("left")
@@ -560,10 +564,14 @@ class Macro():
         if self.seed_data.get("AdvancedSprinkler", False) and self.is_running:
             autoit.mouse_move(1800, 525)
             autoit.mouse_down("left")
-            autoit.mouse_move(1800, 895)
+            autoit.mouse_move(1800, 845)
             autoit.mouse_up("left")
-            self.shopBuy()
-            autoit.mouse_move(1800, 895)
+            #
+            autoit.mouse_click("left", 920, 675, 1)
+            autoit.mouse_click("left", 1000, 1000, 20) 
+            autoit.mouse_click("left", 920, 675, 1)
+            #
+            autoit.mouse_move(1800, 845)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
             autoit.mouse_up("left")
@@ -572,52 +580,68 @@ class Macro():
         if self.seed_data.get("GodlySprinkler", False) and self.is_running:
             autoit.mouse_move(1800, 525)
             autoit.mouse_down("left")
-            autoit.mouse_move(1800, 975)
+            autoit.mouse_move(1800, 925)
             autoit.mouse_up("left")
             #
             autoit.mouse_click("left", 920, 675, 1)
             autoit.mouse_click("left", 1000, 1000, 20) 
             autoit.mouse_click("left", 920, 675, 1)
             #
-            autoit.mouse_move(1800, 975)
+            autoit.mouse_move(1800, 925)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
             autoit.mouse_up("left")
 
-        # Scrolls y + 90
+        # 
         if self.seed_data.get("LightningRod", False) and self.is_running:
             autoit.mouse_move(1800, 525)
             autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1065)
+            autoit.mouse_move(1800, 1005)
             autoit.mouse_up("left")
             #
             autoit.mouse_click("left", 920, 675, 1)
             autoit.mouse_click("left", 1000, 1000, 20) 
             autoit.mouse_click("left", 920, 675, 1)
             #
-            autoit.mouse_move(1800, 1065)
+            autoit.mouse_move(1800, 1005)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
             autoit.mouse_up("left")
 
-        # Scrolls y + 90
+        # 
         if self.seed_data.get("MasterSprinkler", False) and self.is_running:
             autoit.mouse_move(1800, 525)
             autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1155)
+            autoit.mouse_move(1800, 1085)
             autoit.mouse_up("left")
             #
             autoit.mouse_click("left", 920, 675, 1)
             autoit.mouse_click("left", 1000, 1100, 20) 
             autoit.mouse_click("left", 920, 675, 1)
             #
+            autoit.mouse_move(1800, 1085)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 525)
+            autoit.mouse_up("left")
+
+        #
+        if self.seed_data.get("FavoriteTool", False) and self.is_running:
+            autoit.mouse_move(1800, 525)
+            autoit.mouse_down("left")
+            autoit.mouse_move(1800, 1155)
+            autoit.mouse_up("left")
+            #
+            autoit.mouse_click("left", 920, 750, 1)
+            autoit.mouse_click("left", 1000, 1030, 20) 
+            autoit.mouse_click("left", 920, 750, 1)
+            #
             autoit.mouse_move(1800, 1155)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 525)
             autoit.mouse_up("left")
 
-        # Scrolls y + 90
-        if self.seed_data.get("FavoriteTool", False) and self.is_running:
+        # 
+        if self.seed_data.get("HarvestTool", False) and self.is_running:
             autoit.mouse_move(1800, 525)
             autoit.mouse_down("left")
             autoit.mouse_move(1800, 1155)
@@ -657,10 +681,10 @@ class Macro():
         minutesPast = now.minute % 5
         secondsPast = now.second + now.microsecond/1_000_000
 
-        if minutesPast == 0 or (minutesPast == 1 and now.second < 60):
+        if minutesPast == 4 or (minutesPast == 0 and now.second < 60):
             return
         
-        minutesToWait = (5 - minutesPast) % 5
+        minutesToWait = (4 - minutesPast) % 5
         nextRun = now.replace(second=0, microsecond=0) + timedelta(minutes=minutesToWait)
         wait_seconds = (nextRun - now).total_seconds()
 
