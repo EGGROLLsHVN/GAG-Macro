@@ -14,7 +14,9 @@ class Main ():
         self.root = Tk() #Instatiates a window
         self.menuBuild = Menu(self.root)  # Pass the window to Menu
         self.menuBuild.guiBuilder()
+        self.root.protocol("WM_DELETE_WINDOW", self.menuBuild.onClose)
         self.root.mainloop() # Opens window and listens for events
+        
 
 if __name__ == "__main__":
     app = Main()  # This only runs when gui.py is executed directly

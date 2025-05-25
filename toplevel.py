@@ -6,6 +6,7 @@ from macro import Macro
 import keyboard
 import autoit
 import os, sys
+import threading, subprocess
 
 class Newlv():
     def __init__(self, window, reruns):
@@ -129,9 +130,16 @@ class Newlv():
     def onClose(self):
         if self.macro is not None and self.macro.is_running:
             self.macro.stop()
+
+        keyboard.unhook_all()    
+
+        for thread in threading.enumerate():
+            if thread != threading.current_thread():
+                thread.join(timeout=0.1)  # Try to close nicely first
     
         # Destroy the window
         self.toplv.destroy()
+        subprocess.run(["taskkill", "/F", "/PID", str(os.getpid())], shell=True)
         os._exit(0)
 
     def setup_global_hotkeys(self):
@@ -399,6 +407,8 @@ class Newlv():
             takefocus=0,
             command=self.stopMacro    # lambda: self.runMacro(self.seeds, self.reruns, False)
             ).pack(pady=(0,20), expand=True)
+        
+        self.toplv.protocol("WM_DELETE_WINDOW", self.onClose)
 
     def updateSeed(self, seedName):
         self.seeds[seedName] = self.seed_vars[seedName].get()

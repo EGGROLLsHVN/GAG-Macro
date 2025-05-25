@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import *
 from PIL import Image, ImageTk
 from toplevel import Newlv
+import os, sys
+import threading, subprocess, keyboard
 
 altAccount = 0
 
@@ -11,6 +13,18 @@ class Menu():
         self.gagThumbnail = None  # Placeholder for image reference
         self.tk_image = None      # Placeholder for PhotoImage reference
         self.reruns = 0
+
+    def onClose(self):
+        keyboard.unhook_all()    
+        self.window.destroy()
+        for thread in threading.enumerate():
+            if thread != threading.current_thread():
+                thread.join(timeout=0.1)  # Try to close nicely first
+    
+        # Destroy the window
+
+        subprocess.run(["taskkill", "/F", "/PID", str(os.getpid())], shell=True)
+        os._exit(0)    
 
     def guiBuilder(self):
         # Window configuration
