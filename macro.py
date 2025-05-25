@@ -79,7 +79,7 @@ class Macro():
         if not self.is_running:
             return
         
-        autoit.mouse_click("left", 1300 , 200, 2)
+        autoit.mouse_click("left", 1300, 200, 2)
         self.safeSleep(0.5)
         pydirectinput.keyDown("i")
         self.safeSleep(2)
@@ -92,12 +92,12 @@ class Macro():
 
         if self.seed_data.get("SeedShop") > 0 and self.is_running:
             self.regSeedMacro()
-            autoit.mouse_click("left", 1770 , 400)
+            autoit.mouse_click("left", 1770, 400)
             self.safeSleep(1)
 
         if self.seed_data.get("EggShop") > 0 and self.is_running:
             self.eggShopMacro()
-            autoit.mouse_click("left", 1300 , 200, 2)
+            autoit.mouse_click("left", 1300, 200, 2)
             self.safeSleep(1)
             
 
@@ -426,9 +426,9 @@ class Macro():
         autoit.send("d")
 
         pydirectinput.keyDown("d")
-        self.safeSleep(16)
+        self.safeSleep(20)
         pydirectinput.keyUp("d")
-        self.safeSleep(.2)
+        self.safeSleep(.4)
 
         pydirectinput.keyDown("w")
         self.safeSleep(.6)
@@ -481,22 +481,22 @@ class Macro():
         autoit.mouse_click("left", 1740, 565, 1)     # X button
         self.safeSleep(.2)
 
-        pydirectinput.keyDown("s")
-        self.safeSleep(.1)
-        pydirectinput.keyUp("s")
-        self.safeSleep(.2)
+        # pydirectinput.keyDown("s")
+        # self.safeSleep(.1)
+        # pydirectinput.keyUp("s")
+        # self.safeSleep(.2)
 
-        if not self.is_running: return
-        autoit.send("e")
-        self.safeSleep(.6)
+        # if not self.is_running: return
+        # autoit.send("e")
+        # self.safeSleep(.6)
         
-        if not self.is_running: return
-        autoit.mouse_click("left", 1200, 980, 1)    # Buy
-        self.safeSleep(.2)
+        # if not self.is_running: return
+        # autoit.mouse_click("left", 1200, 980, 1)    # Buy
+        # self.safeSleep(.2)
 
-        if not self.is_running: return
-        autoit.mouse_click("left", 1740, 565, 1)     # X button
-        self.safeSleep(.5)
+        # if not self.is_running: return
+        # autoit.mouse_click("left", 1740, 565, 1)     # X button
+        # self.safeSleep(.5)
 
 
     def gearShopMacro(self):
@@ -504,7 +504,8 @@ class Macro():
         autoit.send("d")
         autoit.send("a")
         autoit.send("d")
-        autoit.send("2")
+        # autoit.send("2") 
+        autoit.mouse_click("left", 940, 1480)
         self.safeSleep(2)
         autoit.mouse_click("left", 1530, 760)
         self.safeSleep(1)

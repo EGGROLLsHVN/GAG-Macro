@@ -78,6 +78,8 @@ def addPlaceholder(entry, placeholder):
 def startBtnEvent(altValue, root, menu):
     altNum = altValue.get().strip()
     # altNum = int(altNum)
+
+    # TODO: Make it so if its none it sets to my default resolution
     if altNum.isdigit() and int(altNum)>0:   
         menu.reruns = int(altNum)
         root.withdraw()
@@ -89,6 +91,9 @@ def startBtnEvent(altValue, root, menu):
         root.focus_force()
         altValue.delete(0, 'end')
         addPlaceholder(altValue, "Enter a valid number")
+      
+ 
+        
 
     
 

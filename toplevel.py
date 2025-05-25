@@ -18,8 +18,7 @@ class Newlv():
         self.gearMaxC = 1
         self.eggMaxC=1
         self.bloodMC=1
-       
-
+    
         self.shopCategories = {
             # Seed Shop
             "Carrot": "SeedShop",
