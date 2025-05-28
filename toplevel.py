@@ -1,12 +1,14 @@
 import tkinter as tk
-from tkinter import *
-from tkinter import ttk
-from PIL import Image, ImageDraw, ImageTk
-from macro import Macro
 import keyboard
 import autoit
 import os, sys
 import threading, subprocess
+import json
+from tkinter import *
+from tkinter import ttk
+from PIL import Image, ImageDraw, ImageTk
+from macro import Macro
+
 
 class Newlv():
     def __init__(self, window, reruns):
@@ -15,11 +17,14 @@ class Newlv():
         self.seed_vars = {}
         self.macro = None
         self.setup_global_hotkeys()
+        # Max Columns
         self.seedMaxC = 2
         self.gearMaxC = 1
         self.eggMaxC=1
         self.bloodMC=1
-    
+        self.twilightMC=1
+
+        # NOTE: Edit upon newer updates
         self.shopCategories = {
             # Seed Shop
             "Carrot": "SeedShop",
@@ -43,17 +48,6 @@ class Newlv():
             "CacaoSeed": "SeedShop",
             "BeanstalkSeed": "SeedShop",
 
-            # Bloodmoon Shop
-            "MysteriousCrate": "BloodMoonShop",
-            "NightEgg": "BloodMoonShop",
-            "NightSeedPack": "BloodMoonShop",
-            "BloodBananaSeed": "BloodMoonShop",
-            "MoonMelonSeed": "BloodMoonShop",
-            "StarCaller": "BloodMoonShop",
-            "BloodKiwi": "BloodMoonShop",
-            "BloodHedgehog": "BloodMoonShop",
-            "BloodOwl": "BloodMoonShop",
-
             # Gear Shop
             "WateringCan": "GearShop",
             "Trowel": "GearShop",
@@ -66,10 +60,31 @@ class Newlv():
             "FavoriteTool": "GearShop",
             "HarvestTool": "GearShop",
 
+            # Bloodmoon Shop
+            "MysteriousCrate(Bm)": "BloodMoonShop",
+            "NightEgg(Bm)": "BloodMoonShop",
+            "NightSeedPack(Bm)": "BloodMoonShop",
+            "BloodBananaSeed(Bm)": "BloodMoonShop",
+            "MoonMelonSeed(Bm)": "BloodMoonShop",
+            "StarCaller(Bm)": "BloodMoonShop",
+            "BloodKiwi(Bm)": "BloodMoonShop",
+            "BloodHedgehog(Bm)": "BloodMoonShop",
+            "BloodOwl(Bm)": "BloodMoonShop",
+
+            # Twilight Shop
+            "NightEgg(Tl)": "TwilightShop",
+            "NightSeedPack(Tl)": "TwilightShop",
+            "TwilightCrate(Tl)": "TwilightShop",
+            "StarCaller(Tl)": "TwilightShop",
+            "MoonCat(Tl)": "TwilightShop",
+            "Celestiberry(Tl)": "TwilightShop",
+            "MoonMango(Tl)": "TwilightShop",
+
             # Egg Shop
             "All": "EggShop",
         }
 
+        # NOTE: Edit upon newer updates
         self.seeds = {
             # Seed Shop:
             "SeedShop": 0,
@@ -94,18 +109,6 @@ class Newlv():
             "CacaoSeed": False,
             "BeanstalkSeed": False,
 
-            # Bloodmoon Shop:
-            "BloodMoonShop": 0,
-            "MysteriousCrate": False,
-            "NightEgg": False,
-            "NightSeedPack": False,
-            "BloodBananaSeed": False,
-            "MoonMelonSeed": False,
-            "StarCaller": False,
-            "BloodKiwi": False,
-            "BloodHedgehog": False,
-            "BloodOwl": False,
-
             # Gear:
             "GearShop": 0,
             "WateringCan": False,
@@ -119,6 +122,28 @@ class Newlv():
             "FavoriteTool": False,
             "HarvestTool": False,
 
+            # Bloodmoon Shop:
+            "BloodMoonShop": 0,
+            "MysteriousCrate(Bm)": False,
+            "NightEgg(Bm)": False,
+            "NightSeedPack(Bm)": False,
+            "BloodBananaSeed(Bm)": False,
+            "MoonMelonSeed(Bm)": False,
+            "StarCaller(Bm)": False,
+            "BloodKiwi(Bm)": False,
+            "BloodHedgehog(Bm)": False,
+            "BloodOwl(Bm)": False,
+
+            # Twilight Shop
+            "TwilightShop": 0,
+            "NightEgg(Tl)": False,
+            "NightSeedPack(Tl)": False,
+            "TwilightCrate(Tl)": False,
+            "StarCaller(Tl)": False,
+            "MoonCat(Tl)": False,
+            "Celestiberry(Tl)": False,
+            "MoonMango(Tl)": False,
+
             # Eggshop:
             "EggShop": 0,
             "All": False
@@ -127,11 +152,52 @@ class Newlv():
         for seed in self.seeds:
             self.seed_vars[seed] = tk.BooleanVar(value=self.seeds[seed])
 
+        self.loadOptions()
+
+    def saveOptions(self):
+        settings = {}
+        for seed in self.seeds:
+            settings[seed] = self.seed_vars[seed].get()
+
+        try:
+            with open("MacroSettings.json", "w") as file:
+                json.dump(settings, file, indent=4)  # Adds indent
+        except Exception as e:
+            print(f"Error saving settings: {e}")
+
+    def loadOptions(self):
+        if os.path.exists("MacroSettings.json") and os.path.getsize("MacroSettings.json") > 0:
+            with open("MacroSettings.json", "r") as file:
+                settings = json.load(file)
+                
+                # Update variables from loaded settings
+                for seed in settings:
+                    if seed in self.seed_vars:
+                        self.seed_vars[seed].set(settings[seed])    # Ttinker set method
+                        self.seeds[seed] = settings[seed]           # Dictionary set method
+                
+                # Recalculate category counts
+                self.recalculateCategory()
+        else:
+            # Create a default settings file
+            self.saveOptions()
+
+    def recalculateCategory(self):
+        for category in ["SeedShop", "GearShop", "BloodMoonShop", "TwilightShop", 
+                         "EggShop"]:
+            self.seeds[category] = 0
+
+        for seed, category in self.shopCategories.items():
+            if self.seeds.get(seed, False):
+                self.seeds[category] += 1
+
+
     def onClose(self):
         if self.macro is not None and self.macro.is_running:
             self.macro.stop()
 
         keyboard.unhook_all()    
+        self.saveOptions()
 
         for thread in threading.enumerate():
             if thread != threading.current_thread():
@@ -143,8 +209,6 @@ class Newlv():
         os._exit(0)
 
     def setup_global_hotkeys(self):
-        # Bind Ctrl+1 to startMacro (works even if window is not focused)
-        keyboard.add_hotkey('ctrl+1', self.startMacroKeybind, suppress=True, timeout=0.01)
         # Bind Ctrl+2 to stopMacro
         keyboard.add_hotkey('ctrl+2', self.stopMacroKeybind, suppress=True, timeout=0.001)
 
@@ -193,15 +257,33 @@ class Newlv():
         regSeeds = Frame(shopBook, bg="#292928")
         gearShop = Frame(shopBook, bg="#292928")
         eggShop = Frame(shopBook, bg="#292928")
-        bloodMoonShop = Frame(shopBook, bg="#292928")
+        eventShop = Frame(shopBook, bg="#292928")
         startTab = Frame(shopBook, bg="#292928")
 
         # Add tabs to notebook
         shopBook.add(regSeeds, text="Regular")
         shopBook.add(gearShop, text="Gear")
         shopBook.add(eggShop, text="Eggs")
-        shopBook.add(bloodMoonShop, text="Event")
+        shopBook.add(eventShop, text="Events")
         shopBook.add(startTab, text="Start Macro")
+
+        # Event shop dropdown combo menu
+        eventsVar = tk.StringVar()
+        events = ["Bloodmoon", "Twilight"]
+
+        
+        # Configure the Combobox style
+        style.configure('TCombobox', 
+                        foreground="#ffffff",  # Text color
+                        fieldbackground='#1e1e1e',  # Background color of the entry
+                        background='#1e1e1e',  # Background color of the dropdown button
+                        selectbackground="#333333",  # Background of selected item in dropdown
+                        selectforeground="#ffffff")  # Text color of selected item
+        
+        eventDropdown = ttk.Combobox(eventShop, textvariable=eventsVar, values=events, font=("Comic Sans MS", 10), style="TCombobox")
+        eventDropdown.config(background="#1e1e1e")
+        eventDropdown.pack()
+        eventDropdown.current(0)
         
         # Create a container frame for the different tabs
         seedGrid = Frame(regSeeds, bg="#292928")
@@ -210,17 +292,110 @@ class Newlv():
         gearGrid = Frame(gearShop, bg="#292928")
         gearGrid.pack(fill="both", expand=True, padx=10, pady=10)
 
-        bloodMoonGrid = Frame(bloodMoonShop, bg="#292928")
-        bloodMoonGrid.pack(fill="both", expand=True, padx=10, pady=10)
-
         eggGrid = Frame(eggShop, bg="#292928")
         eggGrid.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Reg Seeds
+        eventShopGrid = Frame(eventShop, bg="#292928")
+        eventShopGrid.pack(fill="both", expand=True, padx=10, pady=10)
 
+        # TODO: Changes combobox
+        def eventMenuChange(select):
+            if select == "Bloodmoon":
+                # Blood Moon Shop
+                for col in range(self.bloodMC):
+                    eventShopGrid.grid_columnconfigure(col, weight=1)
+
+                # NOTE: Edit upon newer updates
+                bloodItems = ["MysteriousCrate(Bm)", "NightEgg(Bm)", "NightSeedPack(Bm)", "BloodBananaSeed(Bm)", "MoonMelonSeed(Bm)", 
+                            "StarCaller(Bm)", "BloodKiwi(Bm)", "BloodHedgehog(Bm)", "BloodOwl(Bm)"]
+
+                for i, bItems in enumerate(bloodItems):
+                    row = i // self.bloodMC
+                    column = i % self.bloodMC
+
+                    Checkbutton(
+                        eventShopGrid,
+                        text=bItems,
+                        variable=self.seed_vars[bItems],
+                        onvalue=True,
+                        offvalue=False,
+                        command=lambda b=bItems: self.updateSeed(b),
+                        bg="#292928",
+                        fg="white",
+                        selectcolor="#1e1e1e",
+                        activebackground="#292928",
+                        activeforeground="white",
+                        anchor="w",
+                        width=18  # Fixed width for consistent alignment
+                        ).grid(
+                        row=row,
+                        column=column,
+                        sticky="nsew",  # Expand to fill cell
+                        padx=5,
+                        pady=2
+                    )
+
+                # Expanding Rows
+                total_rows = (len(bloodItems) // self.bloodMC) + 1
+                for row in range(total_rows):
+                    eventShopGrid.grid_rowconfigure(row, weight=1)
+
+            if select == "Twilight":
+                # Twilight Shop
+                for col in range(self.bloodMC):
+                    eventShopGrid.grid_columnconfigure(col, weight=1)
+
+                # NOTE: Edit upon newer updates
+                twilightItems = ["NightEgg(Tl)", "NightSeedPack(Tl)", "TwilightCrate(Tl)", "StarCaller(Tl)", "MoonCat(Tl)", "Celestiberry(Tl)", "MoonMango(Tl)"]
+            
+                for i, tItems in enumerate(twilightItems):
+                    row = i // self.twilightMC
+                    column = i % self.twilightMC
+
+                    Checkbutton(
+                        eventShopGrid,
+                        text=tItems,
+                        variable=self.seed_vars[tItems],
+                        onvalue=True,
+                        offvalue=False,
+                        command=lambda t=tItems: self.updateSeed(t),
+                        bg="#292928",
+                        fg="white",
+                        selectcolor="#1e1e1e",
+                        activebackground="#292928",
+                        activeforeground="white",
+                        anchor="w",
+                        width=18 
+                        ).grid(
+                        row=row,
+                        column=column,
+                        sticky="nsew",  # Expand to fill cell
+                        padx=5,
+                        pady=2
+                    )
+
+                # Expanding Rows
+                total_rows = (len(twilightItems) // self.twilightMC) + 1
+                for row in range(total_rows):
+                    eventShopGrid.grid_rowconfigure(row, weight=1)
+
+        def onShopChange(event=None):
+            for frame in eventShopGrid.winfo_children():
+                frame.destroy()  
+
+            selected = eventsVar.get()
+
+            eventMenuChange(selected)
+
+        eventDropdown.bind("<<ComboboxSelected>>", onShopChange)
+        onShopChange()   
+
+
+        # Reg Seeds
         for col in range(self.seedMaxC):
             seedGrid.grid_columnconfigure(col, weight=1)
 
+        # NOTE: Edit upon newer updates
         regularSeeds = ["Carrot", "Strawberry", "Blueberry", "OrangeTulip", "TomatoSeed", "CornSeed", 
                         "DaffodilSeed", "WatermelonSeed", "PumpkinSeed", "AppleSeed", "BambooSeed", 
                         "CoconutSeed", "CactusSeed", "DragonFruitSeed", "MangoSeed", "GrapeSeed", "MushroomSeed", 
@@ -244,7 +419,7 @@ class Newlv():
                 activebackground="#292928",
                 activeforeground="white",
                 anchor="w",
-                width=18  # Fixed width for consistent alignment
+                width=18  
                 ).grid(
                 row=row,
                 column=column,
@@ -262,6 +437,7 @@ class Newlv():
         for col in range(self.gearMaxC):
             gearGrid.grid_columnconfigure(col, weight=1)
 
+        # NOTE: Edit upon newer updates
         gearItems = ["WateringCan", "Trowel", "RecallWrench", "BasicSprinkler", "AdvancedSprinkler", 
                      "GodlySprinkler", "LightningRod", "MasterSprinkler", "FavoriteTool", "HarvestTool"]
 
@@ -282,7 +458,7 @@ class Newlv():
                 activebackground="#292928",
                 activeforeground="white",
                 anchor="w",
-                width=18  # Fixed width for consistent alignment
+                width=18  
                 ).grid(
                 row=row,
                 column=column,
@@ -300,6 +476,7 @@ class Newlv():
         for col in range(self.eggMaxC):
             eggGrid.grid_columnconfigure(col, weight=1)
 
+        # NOTE: Edit upon newer updates
         eggShopList = ["All"]
 
         for i, egg in enumerate(eggShopList):
@@ -319,7 +496,7 @@ class Newlv():
                 activebackground="#292928",
                 activeforeground="white",
                 anchor="w",
-                width=18  # Fixed width for consistent alignment
+                width=18  
                 ).grid(
                 row=row,
                 column=column,
@@ -333,83 +510,45 @@ class Newlv():
         for row in range(total_rows):
             eggGrid.grid_rowconfigure(row, weight=1)
         
-        # Blood Moon Shop
-        for col in range(self.bloodMC):
-            bloodMoonGrid.grid_columnconfigure(col, weight=1)
-
-        
-        bloodItems = ["MysteriousCrate", "NightEgg", "NightSeedPack", "BloodBananaSeed", "MoonMelonSeed", 
-                      "StarCaller", "BloodKiwi", "BloodHedgehog", "BloodOwl"]
-
-        for i, bItems in enumerate(bloodItems):
-            row = i // self.eggMaxC
-            column = i % self.eggMaxC
-
-            Checkbutton(
-                bloodMoonGrid,
-                text=bItems,
-                variable=self.seed_vars[bItems],
-                onvalue=True,
-                offvalue=False,
-                command=lambda b=bItems: self.updateSeed(b),
-                bg="#292928",
-                fg="white",
-                selectcolor="#1e1e1e",
-                activebackground="#292928",
-                activeforeground="white",
-                anchor="w",
-                width=18  # Fixed width for consistent alignment
-                ).grid(
-                row=row,
-                column=column,
-                sticky="nsew",  # Expand to fill cell
-                padx=5,
-                pady=2
-            )
-
-        # Expanding Rows
-        total_rows = (len(bloodItems) // self.bloodMC) + 1
-        for row in range(total_rows):
-            bloodMoonGrid.grid_rowconfigure(row, weight=1)
-
         Button(startTab, 
-            text="Start: Ctrl + 1",
-            font=("Comic Sans MS", 12, 'bold'),  # Increased from 10 to 12
-            width=14,  # Increased from 4 to 14 (proportional to font increase)
-            height=2,  # Kept at 2 for taller button
+            text="Start Macro",
+            font=("Comic Sans MS", 12, 'bold'),  
+            width=14, 
+            height=2,  
             bd=0,
             highlightthickness=0,
             highlightbackground="#4d4d4d",
             highlightcolor="#4d4d4d",
             fg="White",
-            bg="#4d4d4d",  # Matching your theme
+            bg="#4d4d4d",  
             activebackground="#3d3d3d",
-            padx=10,  # Horizontal padding
-            pady=5,    # Vertical padding
+            padx=10,  
+            pady=5,   
             takefocus=0,
             command=self.startMacro # lambda: self.runMacro(self.seeds, self.reruns, True)
             ).pack(pady=(20,0), expand=True)
         
         Button(startTab, 
             text="Stop: Ctrl + 2",
-            font=("Comic Sans MS", 12, 'bold'),  # Increased from 10 to 12
-            width=14,  # Increased from 4 to 14 (proportional to font increase)
-            height=2,  # Kept at 2 for taller button
+            font=("Comic Sans MS", 12, 'bold'), 
+            width=14,  
+            height=2, 
             bd=0,
             highlightthickness=0,
             highlightbackground="#4d4d4d",
             highlightcolor="#4d4d4d",
             fg="White",
-            bg="#4d4d4d",  # Matching your theme
+            bg="#4d4d4d",  
             activebackground="#3d3d3d",
-            padx=10,  # Horizontal padding
-            pady=5,    # Vertical padding
+            padx=10, 
+            pady=5,   
             takefocus=0,
-            command=self.stopMacro    # lambda: self.runMacro(self.seeds, self.reruns, False)
+            command=self.stopMacro  
             ).pack(pady=(0,20), expand=True)
         
         self.toplv.protocol("WM_DELETE_WINDOW", self.onClose)
 
+    # TODO: Make it update into a file so it saves the settings
     def updateSeed(self, seedName):
         self.seeds[seedName] = self.seed_vars[seedName].get()
         category = self.shopCategories.get(seedName)
@@ -419,11 +558,10 @@ class Newlv():
         else:
             self.seeds[category] -=1
 
-        print(f"{seedName} state: {self.seeds[seedName]}") 
-        print(f"{category} Buying: {self.seeds[category]}")
+        # print(f"{seedName} state: {self.seeds[seedName]}") 
+        # print(f"{category} Buying: {self.seeds[category]}")
 
-    def startMacroKeybind(self, event=None):  
-        self.startMacro()
+        self.saveOptions()
 
     def startMacro(self):  
         if self.macro is None or not self.macro.is_running:
