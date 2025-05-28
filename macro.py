@@ -184,12 +184,6 @@ class Macro():
         twilightPath = r"images\twilight.png"
         twilightMatches = self.locateImage(twilightPath, confidence=0.9)
 
-        # twilightBool = twilightMatches is not None or twilightNightMatches is not None
-        # bloodmoonBool = bloodmoonMatches is not None or bloodmoonNightMatches is not None
-
-        # self.eventDetector["Bloodmoon"] = bloodmoonBool
-        # self.eventDetector["Twilight"] = twilightBool
-
         if len(twilightMatches) > 0:
             self.eventDetector["Twilight"] = True
             # print("Setting T as True")
@@ -634,31 +628,31 @@ class Macro():
         if self.seedData.get("MoonMelonSeed(Bm)", False) and self.is_running:
             autoit.send("\\")
             autoit.send("{RIGHT}")
-            self.moveDown(5)
+            self.moveDown(6)
             self.shopBuy()
         
         if self.seedData.get("StarCaller(Bm)", False) and self.is_running:
             autoit.send("\\")
             autoit.send("{RIGHT}")
-            self.moveDown(6)
+            self.moveDown(7)
             self.shopBuy()
 
         if self.seedData.get("BloodKiwi(Bm)", False) and self.is_running:
             autoit.send("\\")
             autoit.send("{RIGHT}")
-            self.moveDown(7)
+            self.moveDown(8)
             self.shopBuy()
 
         if self.seedData.get("BloodHedgehog(Bm)", False) and self.is_running:
             autoit.send("\\")
             autoit.send("{RIGHT}")
-            self.moveDown(8)
+            self.moveDown(9)
             self.shopBuy()
 
         if self.seedData.get("BloodOwl(Bm)", False) and self.is_running:
             autoit.send("\\")
             autoit.send("{RIGHT}")
-            self.moveDown(9)
+            self.moveDown(10)
             self.shopBuy()
 
     def twilightShop(self):
@@ -719,23 +713,23 @@ class Macro():
         if self.seedData.get("MoonCat(Tl)", False) and self.is_running:
             autoit.send("\\")
             autoit.send("{RIGHT}")
-            self.moveDown(5)
+            self.moveDown(6)
             self.shopBuy()
         
         if self.seedData.get("Celestiberry(Tl)", False) and self.is_running:
             autoit.send("\\")
             autoit.send("{RIGHT}")
-            self.moveDown(6)
+            self.moveDown(7)
             self.shopBuy()
 
         if self.seedData.get("MoonMango(Tl)", False) and self.is_running:
             autoit.send("\\")
             autoit.send("{RIGHT}")
-            self.moveDown(7)
+            self.moveDown(8)
             self.shopBuy()
             autoit.send("\\")
             autoit.send("{RIGHT}")
-            self.moveDown(7)
+            self.moveDown(8)
             self.shopBuy()
 
     def shopBuy(self):

@@ -19,7 +19,7 @@
     "MushroomSeed": false,
     "PepperSeed": false,
     "CacaoSeed": false,
-    "BeanstalkSeed": true,
+    "BeanstalkSeed": false,
     "GearShop": false,
     "WateringCan": false,
     "Trowel": false,
