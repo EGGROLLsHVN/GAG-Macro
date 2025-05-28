@@ -2,21 +2,30 @@ import pyautogui # Keep these in
 import threading
 import time
 import keyboard
-from datetime import datetime, timedelta
 import pytz # For timezone handling
-import autoit   # Direct input automations
-import time
-import pydirectinput
+import autoit, pydirectinput   # Direct input automations
+import cv2
+import numpy as np
+from datetime import datetime, timedelta
+from mss import mss
+
+
+delay = .3
 
 class Macro():
-    def __init__(self, seed_data, runCount):
+    def __init__(self, seedData, runCount):
        
-        self.seed_data = seed_data  # Store the seeds dictionary
+        self.seedData = seedData  # Store the seeds dictionary
         self.runCount = runCount
         self.is_running = False
         self.thread = None
         self.est = pytz.timezone("US/Eastern")
         self.checkStopThread = None
+
+        self.eventDetector = {
+            "Bloodmoon": False,
+            "Twilight": False
+        }
 
     def start(self):
         if not self.is_running:
@@ -79,7 +88,18 @@ class Macro():
         if not self.is_running:
             return
         
-        autoit.mouse_click("left", 1300, 200, 2)
+        autoit.send("\\")
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(delay)
+        autoit.send("\\")
         self.safeSleep(0.5)
         pydirectinput.keyDown("i")
         self.safeSleep(2)
@@ -90,335 +110,248 @@ class Macro():
         pydirectinput.keyUp("o")
         self.safeSleep(1)
 
-        if self.seed_data.get("SeedShop") > 0 and self.is_running:
+        if self.seedData.get("SeedShop") > 0 and self.is_running:
             self.regSeedMacro()
-            autoit.mouse_click("left", 1770, 400)
+            self.exitShopGui()
+            # autoit.send("\\")
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{ENTER}")
+            # self.safeSleep(delay)
+            # autoit.send("\\")
             self.safeSleep(1)
 
-        if self.seed_data.get("EggShop") > 0 and self.is_running:
+        if self.seedData.get("EggShop") > 0 and self.is_running:
             self.eggShopMacro()
-            autoit.mouse_click("left", 1300, 200, 2)
-            self.safeSleep(1)
-            
+            # autoit.send("\\")
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{ENTER}")
+            # self.safeSleep(delay)
+            # autoit.send("\\")
+            self.safeSleep(1) 
 
-        if self.seed_data.get("GearShop") > 0 and self.is_running:
+        if self.seedData.get("GearShop") > 0 and self.is_running:
             self.gearShopMacro()
-            # autoit.mouse_click("left", 1770 , 400)
+            self.exitShopGui()
+            # autoit.send("\\")
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{RIGHT}")
+            # self.safeSleep(delay)
+            # autoit.send("{ENTER}")
+            # self.safeSleep(delay)
+            # autoit.send("\\")
             self.safeSleep(1)
 
-        # if self.seed_data.get("BloodMoonShop") > 0 and self.is_running:
-        #     self.bloodMoonShop()
+        self.eventShopCheck()
+        self.eventShopActivate()
 
-       
+    def eventShopActivate(self):
+        if self.eventDetector["Bloodmoon"] is True:
+            if self.seedData.get("BloodMoonShop") > 0 and self.is_running:
+                self.bloodMoonShop()
 
-    def regSeedMacro(self): # waitTm = .5, clickWait = 1, moveSpeed = 0.5
+        if self.eventDetector["Twilight"] is True:
+            if self.seedData.get("TwilightShop") > 0 and self.is_running:
+                self.twilightShop()
+
+    def eventShopCheck(self):
+        print("Checking for event shops")
+        bloodmoonPath = r"images\bloodmoon.png"
+        bloodmoonMatches = self.locateImage(bloodmoonPath, confidence=0.9)
+
+        twilightPath = r"images\twilight.png"
+        twilightMatches = self.locateImage(twilightPath, confidence=0.9)
+
+        # twilightBool = twilightMatches is not None or twilightNightMatches is not None
+        # bloodmoonBool = bloodmoonMatches is not None or bloodmoonNightMatches is not None
+
+        # self.eventDetector["Bloodmoon"] = bloodmoonBool
+        # self.eventDetector["Twilight"] = twilightBool
+
+        if len(twilightMatches) > 0:
+            self.eventDetector["Twilight"] = True
+            # print("Setting T as True")
+        else:
+            self.eventDetector["Twilight"] = False
+            # print("Setting T as False")
+
+        if len(bloodmoonMatches) > 0:
+            self.eventDetector["Bloodmoon"] = True
+            # print("Setting B as True")
+        else:
+            self.eventDetector["Bloodmoon"] = False
+            # print("Setting B as False")
+
+    def regSeedMacro(self): 
         if not self.is_running:
             return
-        
-        print("RegularSeeds")
-        autoit.mouse_click("left", 851,192, 2)
+
+        autoit.send("\\")
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{DOWN}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(delay)
         autoit.send("e")
+        autoit.send("\\")
         self.safeSleep(3)
 
-        # Click for the seed (1010, 935) 
-        # To close the buy (1770, 400)
-        if self.seed_data.get("Carrot", False) and self.is_running:
-            autoit.mouse_click("left", 919, 677, 1)
-            autoit.mouse_click("left", 1002, 939, 20) 
-            autoit.mouse_click("left", 919, 677, 1)
-
-        # Scrolls y + 40
-        if self.seed_data.get("Strawberry", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 565)
-            autoit.mouse_up("left")
+        if self.seedData.get("Carrot", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(2)
             self.shopBuy()
-            autoit.mouse_move(1800, 565)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
 
-        # Scrolls y + 40
-        if self.seed_data.get("Blueberry", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 605) # Update to new fruit
-            autoit.mouse_up("left")
+        if self.seedData.get("Strawberry", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(3)
             self.shopBuy()
-            autoit.mouse_move(1800, 605) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
 
-        # Scrolls y + 40
-        if self.seed_data.get("OrangeTulip", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 645) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 685, 1)
-            autoit.mouse_click("left", 1000, 980, 20) 
-            autoit.mouse_click("left", 930, 685, 1)
-            # 
-            autoit.mouse_move(1800, 645) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("Blueberry", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(4)
+            self.shopBuy()
 
-        # Scrolls y + 40
-        if self.seed_data.get("TomatoSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 685) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 685, 1)
-            autoit.mouse_click("left", 1000, 1000, 20) 
-            autoit.mouse_click("left", 920, 685, 1)
-            # 
-            autoit.mouse_move(1800, 685) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("OrangeTulip", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(5)
+            self.shopBuy()
 
-        # Scrolls y + 40
-        if self.seed_data.get("CornSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 725) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 685, 1)
-            autoit.mouse_click("left", 1000, 1020, 20) 
-            autoit.mouse_click("left", 920, 685, 1)
-            # 
-            autoit.mouse_move(1800, 725) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("TomatoSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(6)
+            self.shopBuy()
+
+        if self.seedData.get("CornSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(7)
+            self.shopBuy()
         
-        if self.seed_data.get("DaffodilSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 765) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 685, 1)
-            autoit.mouse_click("left", 1000, 1020, 20) 
-            autoit.mouse_click("left", 920, 685, 1)
-            # 
-            autoit.mouse_move(1800, 765) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("DaffodilSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(8)
+            self.shopBuy()
             
-        if self.seed_data.get("WatermelonSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 805) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 685, 1)
-            autoit.mouse_click("left", 1000, 1020, 20) 
-            autoit.mouse_click("left", 920, 685, 1)
-            # 
-            autoit.mouse_move(1800, 805) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("WatermelonSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(9)
+            self.shopBuy()
 
-        # Pumpkin
-        if self.seed_data.get("PumpkinSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 845) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 685, 1)
-            autoit.mouse_click("left", 1000, 1040, 20) 
-            autoit.mouse_click("left", 920, 685, 1)
-            # 
-            autoit.mouse_move(1800, 845) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("PumpkinSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(10)
+            self.shopBuy()
 
-        if self.seed_data.get("AppleSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 885) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 685, 1)
-            autoit.mouse_click("left", 1000, 1040, 20) 
-            autoit.mouse_click("left", 920, 685, 1)
-            # 
-            autoit.mouse_move(1800, 885) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("AppleSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(11)
+            self.shopBuy()
 
-        if self.seed_data.get("BambooSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 925) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 685, 1)
-            autoit.mouse_click("left", 1000, 1080, 20) 
-            autoit.mouse_click("left", 920, 685, 1)
-            # 
-            autoit.mouse_move(1800, 925) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("BambooSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(12)
+            self.shopBuy()
 
-        if self.seed_data.get("CoconutSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 965) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 720, 1)
-            autoit.mouse_click("left", 1000, 1120, 20) 
-            autoit.mouse_click("left", 920, 720, 1)
-            # 
-            autoit.mouse_move(1800, 965) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
-
-        # Cactus Seeds
-        if self.seed_data.get("CactusSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1005) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 720, 1)
-            autoit.mouse_click("left", 1000, 1120, 20) 
-            autoit.mouse_click("left", 920, 720, 1)
-            # 
-            autoit.mouse_move(1800, 1005) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("CoconutSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(13)
+            self.shopBuy()
         
-        if self.seed_data.get("DragonFruitSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1045) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 720, 1)
-            autoit.mouse_click("left", 1000, 1120, 20) 
-            autoit.mouse_click("left", 920, 720, 1)
-            # 
-            autoit.mouse_move(1800, 1045) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("CactusSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(14)
+            self.shopBuy()
+       
+        if self.seedData.get("DragonFruitSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(15)
+            self.shopBuy()
 
-        if self.seed_data.get("MangoSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1085) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 720, 1)
-            autoit.mouse_click("left", 1000, 1160, 20) 
-            autoit.mouse_click("left", 920, 800, 1)
-            # 
-            autoit.mouse_move(1800, 1085) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("MangoSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(16)
+            self.shopBuy()
+ 
+        if self.seedData.get("GrapeSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(17)
+            self.shopBuy()
 
-        # Grape Seeds
-        if self.seed_data.get("GrapeSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1125) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 720, 1)
-            autoit.mouse_click("left", 1000, 1160, 20) 
-            autoit.mouse_click("left", 920, 800, 1)
-            # 
-            autoit.mouse_move(1800, 1125) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("MushroomSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(18)
+            self.shopBuy()
 
-        if self.seed_data.get("MushroomSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1165) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 720, 1)
-            autoit.mouse_click("left", 1000, 1160, 20) 
-            autoit.mouse_click("left", 920, 800, 1)
-            # 
-            autoit.mouse_move(1800, 1165) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("PepperSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(19)
+            self.shopBuy()
 
-        #Pepper Seeds
-        if self.seed_data.get("PepperSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1205) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 720, 1)
-            autoit.mouse_click("left", 1000, 1200, 20) 
-            autoit.mouse_click("left", 920, 860, 1)
-            # 
-            autoit.mouse_move(1800, 1205) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left") 
+        if self.seedData.get("CacaoSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(20)
+            self.shopBuy()
+       
+        if self.seedData.get("BeanstalkSeed", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(21)
+            self.shopBuy()
 
-        if self.seed_data.get("CacaoSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1245) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 720, 1)
-            autoit.mouse_click("left", 1000, 1240, 20) 
-            autoit.mouse_click("left", 920, 900, 1)
-            # 
-            autoit.mouse_move(1800, 1245) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left") 
-
-        # Beanstalk Seed TODO: Might need to edit (update to new fruit line) when new fruits come out and the whole buy section # #
-        if self.seed_data.get("BeanstalkSeed", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1245) # Update to new fruit
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 1100, 1)
-            autoit.mouse_click("left", 1000, 1240, 20) 
-            autoit.mouse_click("left", 920, 1000, 1)
-            # 
-            autoit.mouse_move(1800, 1245) # Update to new fruit
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left") 
-    
     def eggShopMacro(self):
         if not self.is_running:
             return
-        
-        autoit.mouse_click("left", 1700, 200, 1)
+        autoit.send("\\")
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(delay)
+        autoit.send("\\")
         self.safeSleep(1)
 
         autoit.send("d")
@@ -430,23 +363,30 @@ class Macro():
         pydirectinput.keyUp("d")
         self.safeSleep(.4)
 
+        # The p2w sign 
         pydirectinput.keyDown("w")
-        self.safeSleep(.6)
+        self.safeSleep(1)
         pydirectinput.keyUp("w")
         self.safeSleep(.2)
 
         if not self.is_running: return
         autoit.send("e")
-        self.safeSleep(.6)
+        self.safeSleep(1)
 
         if not self.is_running: return
-        autoit.mouse_click("left", 1200, 980, 1)    # Buy
+        cancelBtnPath = r"images\cancelButton.png"
+        matches = self.locateImage(cancelBtnPath)
+
+        bestMatch = max(matches, key=lambda m: m["confidence"])
+
+        # Click the center of the button for better accuracy
+        x = bestMatch["x"] + bestMatch["width"] // 2
+        y = bestMatch["y"] + bestMatch["height"] // 2
+
+        autoit.mouse_click("left", x, y, 1)   
         self.safeSleep(.2)
 
-        if not self.is_running: return
-        autoit.mouse_click("left", 1740, 565, 1)     # X button
-        self.safeSleep(.2)
-
+        # Egg 1
         pydirectinput.keyDown("s")
         self.safeSleep(.1)
         pydirectinput.keyUp("s")
@@ -456,14 +396,24 @@ class Macro():
         autoit.send("e")
         self.safeSleep(.6)
 
-        if not self.is_running: return
-        autoit.mouse_click("left", 1200, 980, 1)    # Buy
-        self.safeSleep(.2)
+        if not self.is_running: return # Buy
+        autoit.send("\\")
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{DOWN}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(delay)
+        autoit.send("\\")
+        self.safeSleep(.2)    
 
-        if not self.is_running: return
-        autoit.mouse_click("left", 1740, 565, 1)     # X button
-        self.safeSleep(.2)
-
+        # Egg 2
         pydirectinput.keyDown("s")
         self.safeSleep(.1)
         pydirectinput.keyUp("s")
@@ -473,200 +423,377 @@ class Macro():
         autoit.send("e")
         self.safeSleep(.6)
         
-        if not self.is_running: return
-        autoit.mouse_click("left", 1200, 980, 1)    # Buy
+        if not self.is_running: return  # Buy
+        autoit.send("\\")
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{DOWN}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(delay)
+        autoit.send("\\")
+        self.safeSleep(.2) 
+
+        # Egg 3
+        pydirectinput.keyDown("s")
+        self.safeSleep(.1)
+        pydirectinput.keyUp("s")
         self.safeSleep(.2)
 
         if not self.is_running: return
-        autoit.mouse_click("left", 1740, 565, 1)     # X button
-        self.safeSleep(.2)
-
-        # pydirectinput.keyDown("s")
-        # self.safeSleep(.1)
-        # pydirectinput.keyUp("s")
-        # self.safeSleep(.2)
-
-        # if not self.is_running: return
-        # autoit.send("e")
-        # self.safeSleep(.6)
+        autoit.send("e")
+        self.safeSleep(.6)
         
-        # if not self.is_running: return
-        # autoit.mouse_click("left", 1200, 980, 1)    # Buy
-        # self.safeSleep(.2)
-
-        # if not self.is_running: return
-        # autoit.mouse_click("left", 1740, 565, 1)     # X button
-        # self.safeSleep(.5)
-
+        if not self.is_running: return  # Buy
+        autoit.send("\\")
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{DOWN}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(delay)
+        autoit.send("\\")
+        self.safeSleep(.2)
 
     def gearShopMacro(self):
         autoit.send("a")
         autoit.send("d")
         autoit.send("a")
         autoit.send("d")
-        # autoit.send("2") 
-        autoit.mouse_click("left", 940, 1480)
+
+        autoit.send("2") 
+        # autoit.mouse_click("left", 940, 1480)
         self.safeSleep(2)
-        autoit.mouse_click("left", 1530, 760)
+        autoit.mouse_click("left", 800, 700)
+        self.safeSleep(1)
+        autoit.send("e")
         self.safeSleep(1)
 
-        autoit.mouse_click("left", 1530, 800)
-        self.safeSleep(2.5)
-        autoit.mouse_click("left", 1530, 760)
+        autoit.send("\\")
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{DOWN}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(delay)
+        autoit.send("\\")   
         self.safeSleep(1)
-
+    
         # To close the buy (1770, 400)
-        if self.seed_data.get("WateringCan", False) and self.is_running:
-            autoit.mouse_click("left", 919, 677, 1)
-            autoit.mouse_click("left", 1002, 939, 20) 
-            autoit.mouse_click("left", 919, 677, 1)
-
-        # Scrolls y + 90
-        if self.seed_data.get("Trowel", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 615)
-            autoit.mouse_up("left")
+        if self.seedData.get("WateringCan", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(2)
             self.shopBuy()
-            autoit.mouse_move(1800, 615)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
 
         # Scrolls y + 90
-        if self.seed_data.get("RecallWrench", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 705)
-            autoit.mouse_up("left")
+        if self.seedData.get("Trowel", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(3)
             self.shopBuy()
-            autoit.mouse_move(1800, 705)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
 
         # Scrolls y + 90
-        if self.seed_data.get("BasicSprinkler", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 765)
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 675, 1)
-            autoit.mouse_click("left", 1000, 1000, 20) 
-            autoit.mouse_click("left", 920, 675, 1)
-            #
-            autoit.mouse_move(1800, 765)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("RecallWrench", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(4)
+            self.shopBuy()
+
+        # Scrolls y + 90
+        if self.seedData.get("BasicSprinkler", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(5)
+            self.shopBuy()
 
         # Scrolls y + 10
-        if self.seed_data.get("AdvancedSprinkler", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 845)
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 675, 1)
-            autoit.mouse_click("left", 1000, 1000, 20) 
-            autoit.mouse_click("left", 920, 675, 1)
-            #
-            autoit.mouse_move(1800, 845)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("AdvancedSprinkler", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(6)
+            self.shopBuy()
         
         #
-        if self.seed_data.get("GodlySprinkler", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 925)
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 675, 1)
-            autoit.mouse_click("left", 1000, 1000, 20) 
-            autoit.mouse_click("left", 920, 675, 1)
-            #
-            autoit.mouse_move(1800, 925)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("GodlySprinkler", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(7)
+            self.shopBuy()
 
         # 
-        if self.seed_data.get("LightningRod", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1005)
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 675, 1)
-            autoit.mouse_click("left", 1000, 1000, 20) 
-            autoit.mouse_click("left", 920, 675, 1)
-            #
-            autoit.mouse_move(1800, 1005)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("LightningRod", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(8)
+            self.shopBuy()
 
         # 
-        if self.seed_data.get("MasterSprinkler", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1085)
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 675, 1)
-            autoit.mouse_click("left", 1000, 1100, 20) 
-            autoit.mouse_click("left", 920, 675, 1)
-            #
-            autoit.mouse_move(1800, 1085)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("MasterSprinkler", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(9)
+            self.shopBuy()
 
         #
-        if self.seed_data.get("FavoriteTool", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1155)
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 750, 1)
-            autoit.mouse_click("left", 1000, 1030, 20) 
-            autoit.mouse_click("left", 920, 750, 1)
-            #
-            autoit.mouse_move(1800, 1155)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("FavoriteTool", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(10)
+            self.shopBuy()
 
         # 
-        if self.seed_data.get("HarvestTool", False) and self.is_running:
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 1155)
-            autoit.mouse_up("left")
-            #
-            autoit.mouse_click("left", 920, 1100, 1)
-            autoit.mouse_click("left", 1000, 1200, 20) 
-            autoit.mouse_click("left", 920, 1000, 1)
-            #
-            autoit.mouse_move(1800, 1155)
-            autoit.mouse_down("left")
-            autoit.mouse_move(1800, 525)
-            autoit.mouse_up("left")
+        if self.seedData.get("HarvestTool", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(11)
+            self.shopBuy()
 
-    # def bloodMoonShop(self):
+    def bloodMoonShop(self):
+        if not self.is_running:
+            return
+        
+        autoit.send("\\")
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{DOWN}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(delay)
+        autoit.send("\\")
+        self.safeSleep(2)
+
+        autoit.send("d")
+        autoit.send("d")
+        autoit.send("d")
+
+        pydirectinput.keyDown("w")
+        self.safeSleep(.7)
+        pydirectinput.keyUp("w")
+        self.safeSleep(.4)
+
+        pydirectinput.keyDown("d")
+        self.safeSleep(9)
+        pydirectinput.keyUp("d")
+        self.safeSleep(.2)
+
+        autoit.send("e")
+        self.safeSleep(3)
+
+        if self.seedData.get("MysteriousCrate(Bm)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(2)
+            self.shopBuy()
+
+        if self.seedData.get("NightEgg(Bm)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(3)
+            self.shopBuy()
+
+        if self.seedData.get("NightSeedPack(Bm)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(4)
+            self.shopBuy()
+
+        if self.seedData.get("BloodBananaSeed(Bm)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(5)
+            self.shopBuy()
+
+        if self.seedData.get("MoonMelonSeed(Bm)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(5)
+            self.shopBuy()
+        
+        if self.seedData.get("StarCaller(Bm)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(6)
+            self.shopBuy()
+
+        if self.seedData.get("BloodKiwi(Bm)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(7)
+            self.shopBuy()
+
+        if self.seedData.get("BloodHedgehog(Bm)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(8)
+            self.shopBuy()
+
+        if self.seedData.get("BloodOwl(Bm)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(9)
+            self.shopBuy()
+
+    def twilightShop(self):
+        if not self.is_running:
+            return
+        
+        autoit.send("\\")
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{DOWN}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(delay)
+        autoit.send("\\")
+        self.safeSleep(2)
+
+        autoit.send("d")
+        autoit.send("d")
+        autoit.send("d")
+
+        pydirectinput.keyDown("w")
+        self.safeSleep(.7)
+        pydirectinput.keyUp("w")
+        self.safeSleep(.4)
+
+        pydirectinput.keyDown("d")
+        self.safeSleep(9)
+        pydirectinput.keyUp("d")
+        self.safeSleep(.2)
+
+        autoit.send("e")
+        self.safeSleep(3)
+
+        if self.seedData.get("NightEgg(Tl)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(2)
+            self.shopBuy()
+
+        if self.seedData.get("NightSeedPack(Tl)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(3)
+            self.shopBuy()
+
+        if self.seedData.get("TwilightCrate(Tl)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(4)
+            self.shopBuy()
+
+        if self.seedData.get("StarCaller(Tl)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(5)
+            self.shopBuy()
+
+        if self.seedData.get("MoonCat(Tl)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(5)
+            self.shopBuy()
+        
+        if self.seedData.get("Celestiberry(Tl)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(6)
+            self.shopBuy()
+
+        if self.seedData.get("MoonMango(Tl)", False) and self.is_running:
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(7)
+            self.shopBuy()
+            autoit.send("\\")
+            autoit.send("{RIGHT}")
+            self.moveDown(7)
+            self.shopBuy()
 
     def shopBuy(self):
         if not self.is_running:
             return
-        
-        autoit.mouse_click("left", 920, 675, 1)
-        autoit.mouse_click("left", 1000, 950, 20) 
-        autoit.mouse_click("left", 920, 675, 1)
 
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(.75)
+        autoit.send("{DOWN}")
+        self.safeSleep(delay)
+        for i in range(30):
+            autoit.send("{ENTER}")
+            self.safeSleep(.05)
+        autoit.send("{UP}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(.75)
+        autoit.send("\\")
+        autoit.send("\\")
+        autoit.send("\\")
+    
+    def moveDown(self, number):
+        for i in range(number):
+            self.safeSleep(.05)
+            autoit.send("{DOWN}")
+
+    def exitShopGui(self): 
+        autoit.send("\\")
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{RIGHT}")
+        self.safeSleep(delay)
+        autoit.send("{DOWN}")
+        self.safeSleep(delay)
+        autoit.send("{ENTER}")
+        self.safeSleep(delay)
+        autoit.send("\\")
+
+    def locateImage(self, imagePath, confidence=0.5):
+        template = cv2.imread(imagePath, cv2.IMREAD_GRAYSCALE)
+        # h, w = template.shape[:-1]
+        h, w = template.shape
+
+        with mss() as sct:
+            monitor = sct.monitors[1]
+            screenshot = np.array(sct.grab(monitor))
+        #     screen = cv2.cvtColor(screenshot, cv2.COLOR_BGRA2BGR) 
+            screenGray = cv2.cvtColor(screenshot, cv2.COLOR_BGRA2GRAY)
+
+        # result = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
+        result = cv2.matchTemplate(screenGray, template, cv2.TM_CCOEFF_NORMED)
+        loc = np.where(result >= confidence)
+
+        matches = []
+
+        for pt in zip(*loc[::-1]): # Switches x and y
+            matches.append({"x": pt[0], "y": pt[1], "width": w, "height": h, "confidence": result[pt[1], pt[0]]})       
+
+        return matches
+        
     def switchTabs(self):
             keyboard.press_and_release("alt + shift + tab")
             self.safeSleep(0.5)
