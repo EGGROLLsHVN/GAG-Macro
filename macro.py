@@ -83,6 +83,9 @@ class Macro():
                  self.switchTabs()
             else:
                 return
+            
+        if self.runCount > 1:
+            self.switchTabs()
 
     # Run macros according to each seed setting
     def executeMacro(self):

@@ -26,3 +26,7 @@ An automated program for the roblox game "Grow A Garden" that easily buys items 
 - All shop items must be deselected
 - Lineup according to the lineup.png image so it walks straight to the egg merchant from sell
 - Run Executable
+
+### Setup With Alt Accounts
+- Same as Setup 
+- Only roblox + macro open every other application closed
