@@ -171,10 +171,12 @@ class Macro():
         if self.eventDetector["Bloodmoon"] is True:
             if self.seedData.get("BloodMoonShop") > 0 and self.is_running:
                 self.bloodMoonShop()
+                self.exitShopGui()
 
         if self.eventDetector["Twilight"] is True:
             if self.seedData.get("TwilightShop") > 0 and self.is_running:
                 self.twilightShop()
+                self.exitShopGui()
 
     def eventShopCheck(self):
         print("Checking for event shops")
