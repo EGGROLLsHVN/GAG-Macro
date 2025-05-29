@@ -1,6 +1,5 @@
 import tkinter as tk
 import keyboard
-import autoit
 import os, sys
 import threading, subprocess
 import json
